@@ -227,6 +227,7 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
                     <option value="รองผู้อำนวยการฝ่าย">รองผู้อำนวยการฝ่าย</option>
                     <option value="หัวหน้างาน">หัวหน้างาน</option>
                     <option value="หัวหน้าแผนกวิชา">หัวหน้าแผนกวิชา</option>
+                    <option value="ครูในแผนกวิชา">ครูในแผนกวิชา</option>
                     <option value="ผู้ช่วยหัวหน้างาน">ผู้ช่วยหัวหน้างาน</option>
                     <option value="เจ้าหน้าที่งาน">เจ้าหน้าที่งาน</option>
                   </select>

@@ -31,12 +31,14 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
       const head = jobAssignments.find(a => ['หัวหน้างาน', 'หัวหน้าแผนกวิชา'].includes(a.role));
       const assistants = jobAssignments.filter(a => a.role === 'ผู้ช่วยหัวหน้างาน');
       const staff = jobAssignments.filter(a => a.role === 'เจ้าหน้าที่งาน');
+      const teachers = jobAssignments.filter(a => a.role === 'ครูในแผนกวิชา');
       return {
         name: job.name,
         headName: head ? getPersonName(head.personnel_id) : '- ว่าง -',
         headTitle: head ? getPersonTitle(head.personnel_id) : '',
         assistants: assistants.map(a => ({ name: formatWithComment(a), title: getPersonTitle(a.personnel_id) })),
         staff: staff.map(a => ({ name: formatWithComment(a), title: getPersonTitle(a.personnel_id) })),
+        teachers: teachers.map(a => ({ name: getPersonName(a.personnel_id), title: getPersonTitle(a.personnel_id) })),
       };
     };
 
@@ -178,7 +180,7 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
             <div className="mt-3">
               <div className="text-center mb-1">
                 <span className="inline-block bg-emerald-100 text-emerald-800 text-[8px] px-2 py-0.5 rounded-full font-bold border border-emerald-200">
-                  แผนกวิชา — หัวหน้าแผนกวิชา
+                  แผนกวิชา — หัวหน้าแผนกวิชาและครูผู้สอน
                 </span>
               </div>
               <table className="w-full border-collapse" style={{fontSize: '8px'}}>
@@ -192,7 +194,15 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
                 <tbody>
                   {d.sectionJobs.map((sj, sjIdx) => (
                     <tr key={sjIdx}>
-                      <td className="border border-gray-300 p-1 font-medium">{sj.name}</td>
+                      <td className="border border-gray-300 p-1 font-medium">
+                        <div>{sj.name}</div>
+                        {sj.teachers && sj.teachers.length > 0 && (
+                          <div className="text-[7px] text-gray-500 mt-0.5 font-normal leading-normal">
+                            <span className="font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-100/50 mr-1">ครูผู้สอน:</span>
+                            {sj.teachers.map(t => `${t.name} (${t.title || 'ไม่ระบุ'})`).join(', ')}
+                          </div>
+                        )}
+                      </td>
                       <td className="border border-gray-300 p-1">{sj.headName}</td>
                       <td className="border border-gray-300 p-1 text-gray-500">{sj.headTitle || '-'}</td>
                     </tr>

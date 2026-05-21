@@ -24,6 +24,7 @@ const ROLE_RULES = {
 };
 
 function canPlaceRole(mainTitle, targetRole) {
+  if (targetRole === 'ครูในแผนกวิชา') return true;
   const trimmed = (mainTitle || '').trim();
   const allowed = ROLE_RULES[trimmed];
   if (!allowed) return true; // If not in rules, allow
