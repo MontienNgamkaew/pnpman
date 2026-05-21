@@ -44,8 +44,8 @@ try {
 
     // Copy assignments from source to target year
     $stmt = $pdo->prepare("
-        INSERT INTO assignments (personnel_id, job_id, role, academic_year)
-        SELECT personnel_id, job_id, role, ? 
+        INSERT INTO assignments (personnel_id, job_id, role, academic_year, comment)
+        SELECT personnel_id, job_id, role, ?, comment 
         FROM assignments 
         WHERE academic_year = ?
     ");

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
-import { User, Filter } from 'lucide-react';
+import { User, Filter, Search, X } from 'lucide-react';
 
 // Title badge color mapping
 const TITLE_COLORS = {
@@ -21,11 +21,13 @@ function getMainTitle(person) {
 
 const StaffPool = ({ personnel, assignments, onPersonClick, isAdmin, editMode }) => {
   const [filterTitle, setFilterTitle] = useState('All');
+  const [searchName, setSearchName] = useState('');
 
   const filteredPersonnel = personnel
     .filter(p => {
-      if (filterTitle === 'All') return true;
-      return getMainTitle(p) === filterTitle;
+      if (filterTitle !== 'All' && getMainTitle(p) !== filterTitle) return false;
+      if (searchName.trim() && !p.name.includes(searchName.trim())) return false;
+      return true;
     })
     .sort((a, b) => {
       const idxA = TITLE_OPTIONS.indexOf(getMainTitle(a));
@@ -49,8 +51,26 @@ const StaffPool = ({ personnel, assignments, onPersonClick, isAdmin, editMode })
             {filteredPersonnel.length} คน
           </span>
         </h2>
-        
+
+        {/* Search by name */}
         <div className="mt-3 flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 transition-all focus-within:ring-2 focus-within:ring-rose-500 focus-within:border-rose-500 shadow-sm">
+          <Search size={16} className="text-gray-400 shrink-0" />
+          <input
+            type="text"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+            placeholder="ค้นหาชื่อบุคลากร..."
+            className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400"
+          />
+          {searchName && (
+            <button onClick={() => setSearchName('')} className="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+              <X size={14} />
+            </button>
+          )}
+        </div>
+        
+        {/* Filter by title */}
+        <div className="mt-2 flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 transition-all focus-within:ring-2 focus-within:ring-rose-500 focus-within:border-rose-500 shadow-sm">
           <Filter size={16} className="text-gray-400" />
           <select 
             className="w-full bg-transparent text-sm text-gray-700 outline-none"
@@ -70,7 +90,7 @@ const StaffPool = ({ personnel, assignments, onPersonClick, isAdmin, editMode })
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 overflow-y-auto p-3 transition-colors duration-300
+            className={`flex-1 overflow-y-auto p-3 transition-colors duration-300 staff-pool-scroll
               ${snapshot.isDraggingOver ? 'bg-rose-50/50' : 'bg-gray-50/30'}`}
           >
             {filteredPersonnel.map((person, index) => {

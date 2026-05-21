@@ -3,7 +3,7 @@ import { Droppable, Draggable } from '@hello-pangea/dnd';
 import JobZone, { RoleZone } from './JobZone';
 import DeptSectionBox from './DeptSectionBox';
 
-const OrgChart = ({ departments, jobs, assignments, personnel, onPersonClick, isAdmin, editMode, onRemoveAssignment, highlightPersonId }) => {
+const OrgChart = ({ departments, jobs, assignments, personnel, onPersonClick, isAdmin, editMode, onRemoveAssignment, highlightPersonId, onRefresh, academicYear }) => {
   const [activeDept, setActiveDept] = useState(departments[0]?.id);
   const activeDeptId = activeDept || departments[0]?.id;
 
@@ -50,6 +50,7 @@ const OrgChart = ({ departments, jobs, assignments, personnel, onPersonClick, is
               personnel={personnel} onPersonClick={onPersonClick} isAdmin={isAdmin}
               editMode={editMode} onRemoveAssignment={onRemoveAssignment}
               highlightPersonId={highlightPersonId}
+              onRefresh={onRefresh} academicYear={academicYear}
             />
           </div>
         )}
@@ -67,6 +68,7 @@ const OrgChart = ({ departments, jobs, assignments, personnel, onPersonClick, is
               personnel={personnel} onPersonClick={onPersonClick} isAdmin={isAdmin}
               editMode={editMode} onRemoveAssignment={onRemoveAssignment}
               highlightPersonId={highlightPersonId}
+              onRefresh={onRefresh} academicYear={academicYear}
             />
           </div>
         )}
@@ -88,6 +90,7 @@ const OrgChart = ({ departments, jobs, assignments, personnel, onPersonClick, is
               personnel={personnel} onPersonClick={onPersonClick} isAdmin={isAdmin}
               editMode={editMode} onRemoveAssignment={onRemoveAssignment}
               highlightPersonId={highlightPersonId}
+              onRefresh={onRefresh} academicYear={academicYear}
             />
           ))}
         </div>

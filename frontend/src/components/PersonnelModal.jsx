@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Building2, UserCircle, Plus, Trash2 } from 'lucide-react';
+import { X, Building2, UserCircle, Plus, Trash2, MessageSquare, Pencil } from 'lucide-react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -17,7 +17,7 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
     const dept = departments.find(d => d.id === job.department_id);
     const deptName = dept ? dept.name : 'ผู้บริหารสถานศึกษา';
     if (!acc[deptName]) acc[deptName] = [];
-    acc[deptName].push({ job: job.name, role: curr.role, assignment_id: curr.id, job_id: job.id });
+    acc[deptName].push({ job: job.name, role: curr.role, assignment_id: curr.id, job_id: job.id, comment: curr.comment || '' });
     return acc;
   }, {});
 
@@ -41,6 +41,45 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
         Swal.fire({ title: 'ลบสำเร็จ!', icon: 'success', timer: 1200, showConfirmButton: false });
       } catch (error) {
         Swal.fire('ผิดพลาด', error.response?.data?.message || 'Error', 'error');
+      }
+    }
+  };
+
+  const handleEditComment = async (roleItem) => {
+    const supportsComment = ['ผู้ช่วยหัวหน้างาน', 'เจ้าหน้าที่งาน'].includes(roleItem.role);
+    if (!supportsComment) return;
+
+    const { value: comment } = await Swal.fire({
+      title: 'หมายเหตุ / หน้าที่เฉพาะ',
+      html: `<p class="text-sm text-gray-500 mb-2"><strong>${person.name}</strong> — ${roleItem.role} (${roleItem.job})</p>`,
+      input: 'textarea',
+      inputLabel: 'ระบุหมายเหตุหรือหน้าที่เฉพาะเจาะจง',
+      inputPlaceholder: 'เช่น ดูแลงานการเงิน, รับผิดชอบด้านพัสดุ...',
+      inputValue: roleItem.comment || '',
+      showCancelButton: true,
+      confirmButtonText: 'บันทึก',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#6366f1',
+      cancelButtonColor: '#6b7280',
+      inputAttributes: {
+        maxlength: 255,
+        style: 'font-size: 14px; min-height: 80px;',
+      },
+    });
+
+    if (comment !== undefined) {
+      try {
+        await axios.post('http://localhost/pnpman/api/update_comment.php', {
+          personnel_id: person.id,
+          job_id: roleItem.job_id,
+          role: roleItem.role,
+          academic_year: academicYear,
+          comment: comment || null,
+        });
+        if (onRefresh) onRefresh();
+        Swal.fire({ title: 'บันทึกหมายเหตุแล้ว!', icon: 'success', timer: 1200, showConfirmButton: false });
+      } catch (error) {
+        Swal.fire('ผิดพลาด', 'ไม่สามารถบันทึกหมายเหตุได้', 'error');
       }
     }
   };
@@ -71,6 +110,7 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
   );
 
   const showForm = isAdmin && editMode;
+  const supportsCommentRole = (role) => ['ผู้ช่วยหัวหน้างาน', 'เจ้าหน้าที่งาน'].includes(role);
 
   return (
     <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={onClose}>
@@ -112,19 +152,36 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
                     <div className="text-xs font-bold text-indigo-800 mb-2 border-b border-indigo-100 pb-1.5">{deptName}</div>
                     <div className="space-y-1.5">
                       {roles.map((role, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-white p-2.5 rounded-lg border shadow-sm group">
-                          <div>
+                        <div key={idx} className="flex items-start justify-between bg-white p-2.5 rounded-lg border shadow-sm group">
+                          <div className="flex-1 min-w-0">
                             <div className="font-semibold text-gray-800 text-sm">{role.job}</div>
                             <div className="text-xs text-gray-500">{role.role}</div>
+                            {role.comment && (
+                              <div className="text-xs text-amber-600 font-medium mt-1 flex items-center gap-1">
+                                <MessageSquare size={10} className="shrink-0" />
+                                <span className="truncate">{role.comment}</span>
+                              </div>
+                            )}
                           </div>
-                          {isAdmin && editMode && (
-                            <button 
-                              onClick={() => handleRemove(role.job_id, role.role)}
-                              className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          )}
+                          <div className="flex items-center gap-0.5 shrink-0 ml-2">
+                            {isAdmin && editMode && supportsCommentRole(role.role) && (
+                              <button 
+                                onClick={() => handleEditComment(role)}
+                                className={`${role.comment ? 'text-amber-500 hover:bg-amber-50' : 'text-gray-400 hover:bg-gray-100'} hover:text-amber-600 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100`}
+                                title="แก้ไขหมายเหตุ"
+                              >
+                                <Pencil size={13} />
+                              </button>
+                            )}
+                            {isAdmin && editMode && (
+                              <button 
+                                onClick={() => handleRemove(role.job_id, role.role)}
+                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

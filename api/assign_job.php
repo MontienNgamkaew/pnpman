@@ -17,6 +17,7 @@ $personnel_id = $input['personnel_id'] ?? null;
 $job_id = $input['job_id'] ?? null;
 $role = $input['role'] ?? null; 
 $academic_year = $input['academic_year'] ?? 2569;
+$comment = isset($input['comment']) ? $input['comment'] : null;
 
 if (!$personnel_id || !$job_id || !$role) {
     http_response_code(400);
@@ -37,8 +38,8 @@ try {
         }
     }
 
-    $stmt = $pdo->prepare("INSERT INTO assignments (personnel_id, job_id, role, academic_year) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE role = VALUES(role)");
-    $stmt->execute([$personnel_id, $job_id, $role, $academic_year]);
+    $stmt = $pdo->prepare("INSERT INTO assignments (personnel_id, job_id, role, academic_year, comment) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE role = VALUES(role), comment = VALUES(comment)");
+    $stmt->execute([$personnel_id, $job_id, $role, $academic_year, $comment]);
 
     echo json_encode(["status" => "success", "message" => "Assignment updated successfully"]);
 

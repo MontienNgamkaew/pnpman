@@ -251,20 +251,87 @@ function App() {
     setTimeout(() => setHighlightPersonId(null), 4000);
   };
 
+  // PDF export — preview in new tab + save
+  const handleExportPDF = () => {
+    const reportEl = document.getElementById('printable-report');
+    if (!reportEl) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      Swal.fire('แจ้งเตือน', 'กรุณาอนุญาตให้เปิด Popup ในบราวเซอร์', 'warning');
+      return;
+    }
+
+    // Gather all stylesheets
+    const styles = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'))
+      .map(el => el.outerHTML).join('\n');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>ผังโครงสร้าง — ปีการศึกษา ${academicYear}</title>
+        ${styles}
+        <style>
+          * { font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif !important; }
+          body { margin: 0; background: #f3f4f6; }
+          #printable-report { display: block !important; position: relative !important; background: white; max-width: 297mm; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+          .print-toolbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+            background: linear-gradient(135deg, #6b1525, #8b1a2b);
+            padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          }
+          .print-toolbar h3 { color: white; margin: 0; font-size: 16px; font-weight: 700; }
+          .print-toolbar .btn-group { display: flex; gap: 10px; }
+          .print-toolbar button {
+            padding: 8px 20px; border: none; border-radius: 8px; font-size: 14px;
+            font-weight: 700; cursor: pointer; transition: all 0.2s;
+            font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif !important;
+          }
+          .btn-save { background: #22c55e; color: white; }
+          .btn-save:hover { background: #16a34a; transform: translateY(-1px); }
+          .btn-close { background: rgba(255,255,255,0.2); color: white; }
+          .btn-close:hover { background: rgba(255,255,255,0.3); }
+          #printable-report { margin-top: 60px; }
+          @media print {
+            .print-toolbar { display: none !important; }
+            body { background: white; }
+            #printable-report { margin-top: 0; box-shadow: none; max-width: none; }
+            body * { visibility: visible; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-toolbar">
+          <h3>📄 ตัวอย่างผังโครงสร้าง — ปีการศึกษา ${academicYear}</h3>
+          <div class="btn-group">
+            <button class="btn-save" onclick="window.print()">💾 บันทึกเป็น PDF</button>
+            <button class="btn-close" onclick="window.close()">✕ ปิดหน้านี้</button>
+          </div>
+        </div>
+        ${reportEl.outerHTML}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   // Excel export
   const handleExportExcel = () => {
     const wb = XLSX.utils.book_new();
 
     // Sheet 1: Summary
     const summaryData = [["โครงสร้างการบริหารงาน วิทยาลัยการอาชีพพนมไพร"], ["ปีการศึกษา " + academicYear], []];
-    summaryData.push(["ฝ่าย", "งาน/แผนก", "ตำแหน่ง", "ชื่อบุคลากร", "ตำแหน่งหลัก"]);
+    summaryData.push(["ฝ่าย", "งาน/แผนก", "ตำแหน่ง", "ชื่อบุคลากร", "ตำแหน่งหลัก", "หมายเหตุ"]);
 
     departments.forEach(dept => {
       const deptJobs = jobs.filter(j => j.department_id === dept.id);
       deptJobs.forEach(job => {
         const jobAssignments = assignments.filter(a => a.job_id === job.id);
         if (jobAssignments.length === 0) {
-          summaryData.push([dept.name, job.name, "- ว่าง -", "", ""]);
+          summaryData.push([dept.name, job.name, "- ว่าง -", "", "", ""]);
         } else {
           jobAssignments.forEach((a, i) => {
             const person = personnel.find(p => p.id === a.personnel_id);
@@ -273,14 +340,15 @@ function App() {
               i === 0 ? job.name : "",
               a.role,
               person?.name || "ไม่พบ",
-              person?.main_title || ""
+              person?.main_title || "",
+              a.comment || ""
             ]);
           });
         }
       });
     });
     const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
-    ws1['!cols'] = [{wch:30},{wch:35},{wch:20},{wch:25},{wch:20}];
+    ws1['!cols'] = [{wch:30},{wch:35},{wch:20},{wch:25},{wch:20},{wch:30}];
     XLSX.utils.book_append_sheet(wb, ws1, "โครงสร้าง");
 
     // Sheet 2: Personnel list
@@ -328,7 +396,7 @@ function App() {
 
         <div className="flex items-center gap-2 flex-wrap">
           <button 
-            onClick={() => window.print()}
+            onClick={handleExportPDF}
             className="btn-header bg-white/15 hover:bg-white/25 text-white border border-white/20"
           >
             <Download size={16} /> PDF
@@ -424,7 +492,7 @@ function App() {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
-          <div className="w-full lg:w-80 flex flex-col transition-all duration-300">
+          <div className="w-full lg:w-80 flex flex-col transition-all duration-300 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-120px)]">
             <StaffPool 
               personnel={personnel} 
               assignments={assignments}
@@ -445,6 +513,8 @@ function App() {
               editMode={editMode}
               onRemoveAssignment={handleRemoveAssignment}
               highlightPersonId={highlightPersonId}
+              onRefresh={fetchData}
+              academicYear={academicYear}
             />
           </div>
         </div>
