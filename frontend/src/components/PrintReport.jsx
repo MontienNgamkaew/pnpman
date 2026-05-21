@@ -199,7 +199,7 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
                         {sj.teachers && sj.teachers.length > 0 && (
                           <div className="text-[7px] text-gray-500 mt-0.5 font-normal leading-normal">
                             <span className="font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-100/50 mr-1">ครูผู้สอน:</span>
-                            {sj.teachers.map(t => `${t.name} (${t.title || 'ไม่ระบุ'})`).join(', ')}
+                            {sj.teachers.map(t => t.name).join(', ')}
                           </div>
                         )}
                       </td>

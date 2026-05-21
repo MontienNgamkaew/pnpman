@@ -103,7 +103,6 @@ const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editM
                         <User size={11} className="text-sky-600 shrink-0" />
                         <div className="min-w-0">
                           <span className="text-xs font-semibold text-sky-900 truncate block max-w-[120px]">{person.name}</span>
-                          <span className="text-[9px] text-sky-500/70 font-medium truncate block leading-tight">{(person.main_title || '').trim() || 'ไม่ระบุ'}</span>
                         </div>
                         {isAdmin && editMode && onRemoveAssignment && (
                           <button
