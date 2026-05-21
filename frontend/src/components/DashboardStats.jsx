@@ -3,7 +3,7 @@ import { Users, Briefcase, AlertCircle, CheckCircle, UserX, BarChart3 } from 'lu
 
 const DashboardStats = ({ personnel, assignments, jobs }) => {
   const totalPersonnel = personnel.length;
-  const totalJobs = jobs.filter(j => j.id < 900).length;
+  const totalJobs = jobs.filter(j => !(j.id >= 900 && j.id <= 904)).length;
 
   // People with at least 1 assignment
   const assignedPeopleIds = [...new Set(assignments.map(a => a.personnel_id))];
@@ -11,7 +11,7 @@ const DashboardStats = ({ personnel, assignments, jobs }) => {
   const unassignedCount = totalPersonnel - assignedCount;
 
   // Vacant head positions (หัวหน้างาน with 0 assignments)
-  const headJobs = jobs.filter(j => j.id < 900);
+  const headJobs = jobs.filter(j => !(j.id >= 900 && j.id <= 904));
   const vacantHeadCount = headJobs.filter(j => {
     const headAssignments = assignments.filter(a => a.job_id === j.id && a.role === 'หัวหน้างาน');
     return headAssignments.length === 0;

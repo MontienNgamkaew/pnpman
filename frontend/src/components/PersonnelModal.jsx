@@ -106,7 +106,9 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
   };
 
   const filteredJobs = jobs.filter(j => 
-    assignDept === 'exec' ? j.id >= 900 : j.department_id === parseInt(assignDept)
+    assignDept === 'exec' 
+      ? (j.id >= 900 && j.id <= 904) 
+      : (j.department_id === parseInt(assignDept) && !(j.id >= 900 && j.id <= 904))
   );
 
   const showForm = isAdmin && editMode;

@@ -17,12 +17,12 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
 
   // Build department data
   const deptData = departments.map(dept => {
-    const deputyJob = jobs.find(j => j.department_id === dept.id && j.id > 900);
+    const deputyJob = jobs.find(j => j.department_id === dept.id && (j.id >= 901 && j.id <= 904));
     const deputyAssignment = deputyJob ? assignments.find(a => a.job_id === deputyJob.id) : null;
     const deputyName = deputyAssignment ? getPersonName(deputyAssignment.personnel_id) : '- ว่าง -';
     const deputyTitle = deputyAssignment ? getPersonTitle(deputyAssignment.personnel_id) : '';
 
-    const deptJobs = jobs.filter(j => j.department_id === dept.id && j.id < 900);
+    const deptJobs = jobs.filter(j => j.department_id === dept.id && !(j.id >= 900 && j.id <= 904));
     const regularJobs = deptJobs.filter(j => !j.name.startsWith('แผนกวิชา'));
     const sectionJobs = deptJobs.filter(j => j.name.startsWith('แผนกวิชา'));
 

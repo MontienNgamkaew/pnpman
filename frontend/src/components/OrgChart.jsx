@@ -10,9 +10,9 @@ const OrgChart = ({ departments, jobs, assignments, personnel, onPersonClick, is
   if (!departments.length) return <div>Loading...</div>;
 
   const directorJob = jobs.find(j => j.id === 900);
-  const deputyJob = jobs.find(j => j.department_id === activeDeptId && j.id > 900);
-  const sectionJobs = jobs.filter(j => j.department_id === activeDeptId && j.id < 900 && j.name.startsWith('แผนกวิชา'));
-  const currentJobs = jobs.filter(j => j.department_id === activeDeptId && j.id < 900 && !j.name.startsWith('แผนกวิชา'));
+  const deputyJob = jobs.find(j => j.department_id === activeDeptId && (j.id >= 901 && j.id <= 904));
+  const sectionJobs = jobs.filter(j => j.department_id === activeDeptId && !(j.id >= 900 && j.id <= 904) && j.name.startsWith('แผนกวิชา'));
+  const currentJobs = jobs.filter(j => j.department_id === activeDeptId && !(j.id >= 900 && j.id <= 904) && !j.name.startsWith('แผนกวิชา'));
 
   return (
     <div className="flex flex-col h-full">
