@@ -84,7 +84,7 @@ export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPerso
               const person = personnel.find(p => p.id === assignment.personnel_id);
               if (!person) return null;
               return (
-                <Draggable key={`assignment-${assignment.id}`} draggableId={`assignment-${assignment.id}`} index={index} isDragDisabled={true}>
+                <Draggable key={`assignment-${assignment.id}`} draggableId={`assignment-${assignment.id}`} index={index} isDragDisabled={!editMode || !isAdmin}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}

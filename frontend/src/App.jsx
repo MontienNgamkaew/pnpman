@@ -137,8 +137,27 @@ function App() {
     
     const { source, destination, draggableId } = result;
     if (!destination) return;
-    if (source.droppableId === destination.droppableId) return;
 
+    // Case 1: Reordering inside the same droppable list
+    if (source.droppableId === destination.droppableId) {
+      if (source.droppableId.startsWith('job|')) {
+        const parts = source.droppableId.split('|');
+        const jobId = parseInt(parts[1]);
+        const role = parts[2];
+        
+        const items = Array.from(assignments);
+        const listItems = items.filter(a => a.job_id === jobId && a.role === role && a.academic_year === academicYear);
+        const otherItems = items.filter(a => !(a.job_id === jobId && a.role === role && a.academic_year === academicYear));
+        
+        const [reordered] = listItems.splice(source.index, 1);
+        listItems.splice(destination.index, 0, reordered);
+        
+        setAssignments([...otherItems, ...listItems]);
+      }
+      return;
+    }
+
+    // Case 2: Dragging from Staff Pool to a Job Zone (New assignment)
     if (source.droppableId === 'staff-pool' && destination.droppableId.startsWith('job|')) {
       const personId = parseInt(draggableId.replace('person-', ''));
       const parts = destination.droppableId.split('|');
@@ -175,6 +194,141 @@ function App() {
         setAssignments(prev => prev.filter(a => a.id !== tempId));
         Swal.fire('ผิดพลาด', error.response?.data?.message || 'ไม่สามารถมอบหมายงานได้', 'error');
       }
+      return;
+    }
+
+    // Case 3: Dragging from a Job Zone back to Staff Pool (Delete assignment)
+    if (source.droppableId.startsWith('job|') && destination.droppableId === 'staff-pool') {
+      const assignmentId = parseInt(draggableId.replace('assignment-', ''));
+      const assignment = assignments.find(a => a.id === assignmentId);
+      if (!assignment) return;
+
+      const parts = source.droppableId.split('|');
+      const sourceJobId = parseInt(parts[1]);
+      const sourceRole = parts[2];
+
+      // Optimistic update
+      setAssignments(prev => prev.filter(a => a.id !== assignmentId));
+
+      try {
+        await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+          personnel_id: assignment.personnel_id,
+          job_id: sourceJobId,
+          role: sourceRole,
+          academic_year: academicYear
+        });
+        fetchData();
+      } catch (error) {
+        fetchData();
+        Swal.fire('ผิดพลาด', error.response?.data?.message || 'ไม่สามารถลบงานได้', 'error');
+      }
+      return;
+    }
+
+    // Case 4: Dragging from one Job Zone to another Job Zone (Reassigning or Swapping)
+    if (source.droppableId.startsWith('job|') && destination.droppableId.startsWith('job|')) {
+      const assignmentId = parseInt(draggableId.replace('assignment-', ''));
+      const assignment = assignments.find(a => a.id === assignmentId);
+      if (!assignment) return;
+
+      const personId = assignment.personnel_id;
+      const person = personnel.find(p => p.id === personId);
+      if (!person) return;
+
+      const srcParts = source.droppableId.split('|');
+      const srcJobId = parseInt(srcParts[1]);
+      const srcRole = srcParts[2];
+
+      const destParts = destination.droppableId.split('|');
+      const destJobId = parseInt(destParts[1]);
+      const destRole = destParts[2];
+
+      // Check role placement rules for the dragged person in target role
+      if (!canPlaceRole(person.main_title, destRole)) {
+        Swal.fire({
+          title: 'ไม่สามารถวางได้',
+          html: `<strong>${person.name}</strong> (${person.main_title})<br/>ไม่สามารถวางในตำแหน่ง <strong>${destRole}</strong> ได้`,
+          icon: 'error',
+          confirmButtonColor: '#6366f1',
+        });
+        return;
+      }
+
+      // Check if target is a single-person role and already occupied (swapping scenario)
+      const isDestSinglePerson = ['หัวหน้างาน', 'ผู้อำนวยการวิทยาลัย', 'รองผู้อำนวยการฝ่าย', 'หัวหน้าแผนกวิชา'].includes(destRole);
+      const destAssignments = assignments.filter(a => a.job_id === destJobId && a.role === destRole && a.academic_year === academicYear);
+      
+      if (isDestSinglePerson && destAssignments.length > 0) {
+        // Swap scenario!
+        const destAssignment = destAssignments[0];
+        const destPerson = personnel.find(p => p.id === destAssignment.personnel_id);
+
+        if (destPerson) {
+          // Check if destination person can be placed in source role
+          if (!canPlaceRole(destPerson.main_title, srcRole)) {
+            Swal.fire({
+              title: 'ไม่สามารถสลับได้',
+              html: `<strong>${destPerson.name}</strong> (${destPerson.main_title})<br/>ไม่สามารถย้ายมาในตำแหน่งต้นทาง <strong>${srcRole}</strong> ได้`,
+              icon: 'error',
+              confirmButtonColor: '#6366f1',
+            });
+            return;
+          }
+
+          // Optimistic update
+          const tempId1 = assignmentId;
+          const tempId2 = destAssignment.id;
+          setAssignments(prev => prev.map(a => {
+            if (a.id === tempId1) return { ...a, job_id: destJobId, role: destRole };
+            if (a.id === tempId2) return { ...a, job_id: srcJobId, role: srcRole };
+            return a;
+          }));
+
+          try {
+            // Delete both old database assignments, then insert the new swapped ones
+            await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+              personnel_id: personId, job_id: srcJobId, role: srcRole, academic_year: academicYear
+            });
+            await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+              personnel_id: destPerson.id, job_id: destJobId, role: destRole, academic_year: academicYear
+            });
+            
+            await axios.post('http://localhost/pnpman/api/assign_job.php', {
+              personnel_id: personId, job_id: destJobId, role: destRole, academic_year: academicYear, comment: assignment.comment
+            });
+            await axios.post('http://localhost/pnpman/api/assign_job.php', {
+              personnel_id: destPerson.id, job_id: srcJobId, role: srcRole, academic_year: academicYear, comment: destAssignment.comment
+            });
+
+            fetchData();
+            Swal.fire({ title: 'สลับตำแหน่งเรียบร้อย!', icon: 'success', timer: 1200, showConfirmButton: false });
+          } catch (error) {
+            fetchData();
+            Swal.fire('ผิดพลาด', 'ไม่สามารถสลับตำแหน่งในฐานข้อมูลได้', 'error');
+          }
+        }
+      } else {
+        // Standard Move scenario (move to empty slot or multi-person slot)
+        // Optimistic update
+        setAssignments(prev => prev.map(a => {
+          if (a.id === assignmentId) return { ...a, job_id: destJobId, role: destRole };
+          return a;
+        }));
+
+        try {
+          await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+            personnel_id: personId, job_id: srcJobId, role: srcRole, academic_year: academicYear
+          });
+          await axios.post('http://localhost/pnpman/api/assign_job.php', {
+            personnel_id: personId, job_id: destJobId, role: destRole, academic_year: academicYear, comment: assignment.comment
+          });
+          fetchData();
+        } catch (error) {
+          fetchData();
+          Swal.fire('ผิดพลาด', 'ไม่สามารถย้ายตำแหน่งงานได้', 'error');
+        }
+      }
+      return;
     }
   };
 
