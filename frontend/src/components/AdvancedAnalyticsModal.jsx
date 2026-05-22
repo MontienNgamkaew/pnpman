@@ -117,9 +117,9 @@ const AdvancedAnalyticsModal = ({
   const deptAnalytics = departments.map(d => {
     const deptJobs = jobs.filter(j => j.department_id === d.id && !(j.id >= 900 && j.id <= 904));
     
-    // Vacant jobs list: Jobs in this department with no 'หัวหน้างาน' assigned
+    // Vacant jobs list: Jobs in this department with no supervisor ('หัวหน้างาน' หรือ 'หัวหน้าแผนกวิชา') assigned
     const vacantJobs = deptJobs.filter(j => {
-      const hasHead = assignments.some(a => a.job_id === j.id && a.role === 'หัวหน้างาน');
+      const hasHead = assignments.some(a => a.job_id === j.id && (a.role === 'หัวหน้างาน' || a.role === 'หัวหน้าแผนกวิชา'));
       return !hasHead;
     });
 
