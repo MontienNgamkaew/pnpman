@@ -1,7 +1,7 @@
 import React from 'react';
 import { Users, Briefcase, AlertCircle, CheckCircle, UserX, BarChart3 } from 'lucide-react';
 
-const DashboardStats = ({ personnel, assignments, jobs }) => {
+const DashboardStats = ({ personnel, assignments, jobs, onOpenAnalytics }) => {
   const totalPersonnel = personnel.length;
   const totalJobs = jobs.filter(j => !(j.id >= 900 && j.id <= 904)).length;
 
@@ -33,20 +33,49 @@ const DashboardStats = ({ personnel, assignments, jobs }) => {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
-      {stats.map((s, i) => (
-        <div key={i} className={`${s.bg} rounded-xl p-3 border border-gray-100 shadow-sm hover:shadow-md transition-all group`}>
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className={`bg-gradient-to-br ${s.color} p-1.5 rounded-lg shadow-sm`}>
-              <s.icon size={14} className="text-white" />
+    <div className="flex flex-col md:flex-row gap-3 mb-5 items-stretch">
+      {/* Stats Cards Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 flex-1">
+        {stats.map((s, i) => (
+          <div key={i} className={`${s.bg} rounded-2xl p-3.5 border border-gray-150 shadow-sm hover:shadow-md transition-all duration-300 group flex flex-col justify-between`}>
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`bg-gradient-to-br ${s.color} p-1.5 rounded-lg shadow-sm group-hover:scale-105 transition-transform`}>
+                <s.icon size={13} className="text-white" />
+              </div>
+              <span className="text-[11px] text-gray-500 font-bold leading-tight">{s.label}</span>
             </div>
-            <span className="text-[11px] text-gray-500 font-medium leading-tight">{s.label}</span>
+            <div className={`text-2xl font-black ${s.text} leading-none mt-1`}>
+              {s.value}<span className="text-xs font-semibold opacity-60 ml-0.5">{s.unit}</span>
+            </div>
           </div>
-          <div className={`text-2xl font-black ${s.text} leading-none`}>
-            {s.value}<span className="text-xs font-bold opacity-60 ml-0.5">{s.unit}</span>
+        ))}
+      </div>
+
+      {/* Premium Analytics Button Card */}
+      {onOpenAnalytics && (
+        <button
+          onClick={onOpenAnalytics}
+          className="bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-900 text-white rounded-2xl p-3.5 border border-indigo-950/20 shadow-md hover:shadow-lg transition-all duration-300 group flex flex-col justify-between items-start shrink-0 w-full md:w-44 cursor-pointer relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-16 h-16 bg-white/5 rounded-full blur-xl pointer-events-none transition-transform group-hover:scale-125" />
+          
+          <div className="flex items-center gap-2 mb-2 w-full">
+            <div className="bg-indigo-500/20 p-1.5 rounded-lg border border-indigo-500/10">
+              <BarChart3 size={13} className="text-indigo-300 group-hover:rotate-12 transition-transform" />
+            </div>
+            <span className="text-[9px] text-indigo-300 font-black tracking-widest uppercase">Analytics Suite</span>
           </div>
-        </div>
-      ))}
+
+          <div className="text-left mt-2">
+            <span className="text-sm font-black block group-hover:translate-x-1 transition-transform flex items-center gap-1">
+              วิเคราะห์เชิงลึก 📊
+            </span>
+            <span className="text-[9px] text-indigo-200/80 font-bold block mt-0.5">
+              ภาระงาน & อัตรากำลังพล
+            </span>
+          </div>
+        </button>
+      )}
     </div>
   );
 };

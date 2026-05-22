@@ -9,6 +9,7 @@ import LoginModal from './components/LoginModal';
 import PersonnelAdminModal from './components/PersonnelAdminModal';
 import SettingsModal from './components/SettingsModal';
 import DashboardStats from './components/DashboardStats';
+import AdvancedAnalyticsModal from './components/AdvancedAnalyticsModal';
 import PrintReport from './components/PrintReport';
 import { Lock, LogOut, Users, Download, Trash2, Edit3, Save, Copy, Settings, Search, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
@@ -45,6 +46,7 @@ function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [highlightPersonId, setHighlightPersonId] = useState(null);
@@ -643,7 +645,12 @@ function App() {
       </div>
 
       {/* Dashboard */}
-      <DashboardStats personnel={personnel} assignments={assignments} jobs={jobs} />
+      <DashboardStats 
+        personnel={personnel} 
+        assignments={assignments} 
+        jobs={jobs} 
+        onOpenAnalytics={() => setShowAnalytics(true)} 
+      />
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
@@ -692,7 +699,24 @@ function App() {
       
       {showLogin && <LoginModal onClose={() => setShowLogin(false)} onLogin={handleLogin} />}
       {showAdmin && <PersonnelAdminModal personnel={personnel} onClose={() => setShowAdmin(false)} onRefresh={fetchData} />}
-      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showSettings && (
+        <SettingsModal 
+          onClose={() => setShowSettings(false)} 
+          years={years} 
+          currentYear={academicYear} 
+          onRefresh={fetchData} 
+        />
+      )}
+      {showAnalytics && (
+        <AdvancedAnalyticsModal
+          personnel={personnel}
+          assignments={assignments}
+          jobs={jobs}
+          departments={departments}
+          academicYear={academicYear}
+          onClose={() => setShowAnalytics(false)}
+        />
+      )}
       
       <PrintReport 
         personnel={personnel} jobs={jobs} departments={departments} 
