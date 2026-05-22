@@ -12,12 +12,12 @@ export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPerso
 
   // Color mapping for roles
   const roleColors = {
-    'หัวหน้างาน': { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-    'ผู้ช่วยหัวหน้างาน': { bg: 'bg-sky-50', border: 'border-sky-200', text: 'text-sky-700', dot: 'bg-sky-500' },
-    'เจ้าหน้าที่งาน': { bg: 'bg-fuchsia-50', border: 'border-fuchsia-200', text: 'text-fuchsia-700', dot: 'bg-fuchsia-500' },
-    'ผู้อำนวยการวิทยาลัย': { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500' },
-    'รองผู้อำนวยการฝ่าย': { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', dot: 'bg-blue-500' },
-    'หัวหน้าแผนกวิชา': { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', dot: 'bg-emerald-500' },
+    'หัวหน้างาน': { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800', dot: 'bg-emerald-600' },
+    'ผู้ช่วยหัวหน้างาน': { bg: 'bg-sky-50', border: 'border-sky-200', text: 'text-sky-800', dot: 'bg-sky-600' },
+    'เจ้าหน้าที่งาน': { bg: 'bg-fuchsia-50', border: 'border-fuchsia-200', text: 'text-fuchsia-800', dot: 'bg-fuchsia-600' },
+    'ผู้อำนวยการวิทยาลัย': { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-800', dot: 'bg-amber-600' },
+    'รองผู้อำนวยการฝ่าย': { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', dot: 'bg-blue-600' },
+    'หัวหน้าแผนกวิชา': { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800', dot: 'bg-emerald-600' },
   };
 
   const colors = roleColors[roleName] || { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-700', dot: 'bg-gray-500' };
@@ -107,8 +107,8 @@ export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPerso
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <span className={`text-xs font-semibold ${colors.text} truncate block`}>{person.name}</span>
-                        <span className="text-[10px] text-gray-400 font-medium truncate block">{(person.main_title || '').trim() || 'ไม่ระบุ'}</span>
+                        <span className="text-xs font-bold text-slate-800 truncate block">{person.name}</span>
+                        <span className={`text-[10px] ${colors.text} font-semibold truncate block`}>{(person.main_title || '').trim() || 'ไม่ระบุ'}</span>
                         {assignment.comment && (
                           <span className="text-[10px] text-amber-600 font-medium truncate block flex items-center gap-0.5 mt-0.5">
                             <MessageSquare size={9} className="shrink-0" />
