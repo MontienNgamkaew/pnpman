@@ -19,9 +19,20 @@ try {
     $jobs = $stmt->fetchAll();
 
     // Get all assignments
-    $stmt = $pdo->prepare("SELECT * FROM assignments WHERE academic_year = ?");
+    $stmt = $pdo->prepare("SELECT * FROM assignments WHERE academic_year = ? ORDER BY sort_order, id");
     $stmt->execute([$year]);
     $assignments = $stmt->fetchAll();
+
+    // Get college settings
+    $stmt = $pdo->query("SELECT * FROM college_settings WHERE id = 1");
+    $settings = $stmt->fetch();
+    if (!$settings) {
+        $settings = [
+            "college_name" => "วิทยาลัยการอาชีพพนมไพร",
+            "logo_path" => "",
+            "theme_preset" => "rose"
+        ];
+    }
 
     // Return the response
     echo json_encode([
@@ -30,7 +41,8 @@ try {
             "personnel" => $personnel,
             "departments" => $departments,
             "jobs" => $jobs,
-            "assignments" => $assignments
+            "assignments" => $assignments,
+            "settings" => $settings
         ]
     ]);
 } catch (\Exception $e) {

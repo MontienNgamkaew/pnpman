@@ -13,6 +13,7 @@ import AdvancedAnalyticsModal from './components/AdvancedAnalyticsModal';
 import PrintReport from './components/PrintReport';
 import { Lock, LogOut, Users, Download, Trash2, Edit3, Save, Copy, Settings, Search, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { sortAssignments } from './utils/sorting';
 
 // Role placement rules based on main_title
 const ROLE_RULES = {
@@ -32,11 +33,99 @@ function canPlaceRole(mainTitle, targetRole) {
   return allowed.includes(targetRole);
 }
 
+export const THEME_PRESETS = {
+  rose: {
+    bodyBg: 'linear-gradient(135deg, #fdf2f2 0%, #fce4e4 30%, #fef0f0 60%, #f5e6e6 100%)',
+    primaryGradient: 'linear-gradient(135deg, #6b1525 0%, #8b1a2b 40%, #7a1827 70%, #5c1220 100%)',
+    primaryColor: '#8b1a2b',
+    primaryHover: '#7a1827',
+    accentColor: '#e8a0a0',
+    accentHover: '#c0494e',
+    scrollTrack: '#fef2f2',
+    scrollThumb: 'linear-gradient(180deg, #e8a0a0, #d07070)',
+    scrollThumbHover: 'linear-gradient(180deg, #c0494e, #a03040)',
+  },
+  emerald: {
+    bodyBg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 30%, #f0fdf4 60%, #e8f5e9 100%)',
+    primaryGradient: 'linear-gradient(135deg, #064e3b 0%, #047857 40%, #065f46 70%, #022c22 100%)',
+    primaryColor: '#047857',
+    primaryHover: '#065f46',
+    accentColor: '#a7f3d0',
+    accentHover: '#059669',
+    scrollTrack: '#f0fdf4',
+    scrollThumb: 'linear-gradient(180deg, #a7f3d0, #6ee7b7)',
+    scrollThumbHover: 'linear-gradient(180deg, #059669, #047857)',
+  },
+  sky: {
+    bodyBg: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #f0f9ff 60%, #e3f2fd 100%)',
+    primaryGradient: 'linear-gradient(135deg, #0c4a6e 0%, #0284c7 40%, #0369a1 70%, #082f49 100%)',
+    primaryColor: '#0284c7',
+    primaryHover: '#0369a1',
+    accentColor: '#bae6fd',
+    accentHover: '#0284c7',
+    scrollTrack: '#f0f9ff',
+    scrollThumb: 'linear-gradient(180deg, #bae6fd, #7dd3fc)',
+    scrollThumbHover: 'linear-gradient(180deg, #0284c7, #0369a1)',
+  },
+  indigo: {
+    bodyBg: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 30%, #eef2ff 60%, #ede7f6 100%)',
+    primaryGradient: 'linear-gradient(135deg, #311b92 0%, #4f46e5 40%, #4338ca 70%, #1a237e 100%)',
+    primaryColor: '#4f46e5',
+    primaryHover: '#4338ca',
+    accentColor: '#c7d2fe',
+    accentHover: '#4f46e5',
+    scrollTrack: '#eef2ff',
+    scrollThumb: 'linear-gradient(180deg, #c7d2fe, #a5b4fc)',
+    scrollThumbHover: 'linear-gradient(180deg, #4f46e5, #4338ca)',
+  },
+  amber: {
+    bodyBg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 30%, #fffbeb 60%, #faf8f0 100%)',
+    primaryGradient: 'linear-gradient(135deg, #78350f 0%, #d97706 40%, #b45309 70%, #451a03 100%)',
+    primaryColor: '#d97706',
+    primaryHover: '#b45309',
+    accentColor: '#fde68a',
+    accentHover: '#d97706',
+    scrollTrack: '#fffbeb',
+    scrollThumb: 'linear-gradient(180deg, #fde68a, #fcd34d)',
+    scrollThumbHover: 'linear-gradient(180deg, #d97706, #b45309)',
+  },
+  slate: {
+    bodyBg: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 30%, #f8fafc 60%, #e2e8f0 100%)',
+    primaryGradient: 'linear-gradient(135deg, #0f172a 0%, #334155 40%, #1e293b 70%, #020617 100%)',
+    primaryColor: '#334155',
+    primaryHover: '#1e293b',
+    accentColor: '#cbd5e1',
+    accentHover: '#475569',
+    scrollTrack: '#f8fafc',
+    scrollThumb: 'linear-gradient(180deg, #cbd5e1, #94a3b8)',
+    scrollThumbHover: 'linear-gradient(180deg, #475569, #334155)',
+  }
+};
+
+export function applyTheme(themePreset) {
+  const preset = THEME_PRESETS[themePreset] || THEME_PRESETS.rose;
+  const root = document.documentElement;
+  root.style.setProperty('--theme-body-bg', preset.bodyBg);
+  root.style.setProperty('--theme-primary-gradient', preset.primaryGradient);
+  root.style.setProperty('--theme-primary-color', preset.primaryColor);
+  root.style.setProperty('--theme-primary-hover', preset.primaryHover);
+  root.style.setProperty('--theme-accent-color', preset.accentColor);
+  root.style.setProperty('--theme-accent-hover', preset.accentHover);
+  root.style.setProperty('--theme-scroll-track', preset.scrollTrack);
+  root.style.setProperty('--theme-scroll-thumb', preset.scrollThumb);
+  root.style.setProperty('--theme-scroll-thumb-hover', preset.scrollThumbHover);
+}
+
 function App() {
   const [departments, setDepartments] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [personnel, setPersonnel] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [collegeSettings, setCollegeSettings] = useState({
+    college_name: 'วิทยาลัยการอาชีพพนมไพร',
+    logo_path: '',
+    theme_preset: 'rose'
+  });
   const [loading, setLoading] = useState(true);
   
   const [selectedPerson, setSelectedPerson] = useState(null);
@@ -71,6 +160,10 @@ function App() {
       setJobs(res.data.data.jobs);
       setPersonnel(res.data.data.personnel);
       setAssignments(res.data.data.assignments);
+      if (res.data.data.settings) {
+        setCollegeSettings(res.data.data.settings);
+        applyTheme(res.data.data.settings.theme_preset);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -148,14 +241,34 @@ function App() {
         const jobId = parseInt(parts[1]);
         const role = parts[2];
         
-        const items = Array.from(assignments);
-        const listItems = items.filter(a => a.job_id === jobId && a.role === role && a.academic_year === academicYear);
-        const otherItems = items.filter(a => !(a.job_id === jobId && a.role === role && a.academic_year === academicYear));
+        const listItems = assignments.filter(a => a.job_id === jobId && a.role === role && a.academic_year === academicYear);
+        const otherItems = assignments.filter(a => !(a.job_id === jobId && a.role === role && a.academic_year === academicYear));
         
-        const [reordered] = listItems.splice(source.index, 1);
-        listItems.splice(destination.index, 0, reordered);
+        // Sort using the visual sorting logic so indices match
+        const sortedList = sortAssignments(listItems, personnel);
+        const [reordered] = sortedList.splice(source.index, 1);
+        sortedList.splice(destination.index, 0, reordered);
         
-        setAssignments([...otherItems, ...listItems]);
+        // Re-assign explicit sort_order based on the new visual order
+        const reorderedWithSortOrder = sortedList.map((item, idx) => ({
+          ...item,
+          sort_order: idx + 1
+        }));
+        
+        setAssignments([...otherItems, ...reorderedWithSortOrder]);
+        
+        // Persist to database
+        try {
+          await axios.post('http://localhost/pnpman/api/reorder_assignments.php', {
+            job_id: jobId,
+            role: role,
+            academic_year: academicYear,
+            assignment_ids: reorderedWithSortOrder.map(item => item.id)
+          });
+        } catch (error) {
+          console.error("Failed to persist assignment order:", error);
+          fetchData(); // Restore state from database on failure
+        }
       }
       return;
     }
@@ -436,7 +549,7 @@ function App() {
           #printable-report { display: block !important; position: relative !important; background: white; max-width: 297mm; margin: 0 auto; box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
           .print-toolbar {
             position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-            background: linear-gradient(135deg, #6b1525, #8b1a2b);
+            background: var(--theme-primary-gradient);
             padding: 12px 24px; display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
           }
@@ -480,7 +593,7 @@ function App() {
     const wb = XLSX.utils.book_new();
 
     // Sheet 1: Summary
-    const summaryData = [["โครงสร้างการบริหารงาน วิทยาลัยการอาชีพพนมไพร"], ["ปีการศึกษา " + academicYear], []];
+    const summaryData = [["โครงสร้างการบริหารงาน " + collegeSettings.college_name], ["ปีการศึกษา " + academicYear], []];
     summaryData.push(["ฝ่าย", "งาน/แผนก", "ตำแหน่ง", "ชื่อบุคลากร", "ตำแหน่งหลัก", "หมายเหตุ"]);
 
     departments.forEach(dept => {
@@ -527,12 +640,12 @@ function App() {
       {/* Header */}
       <header className="header-gradient rounded-2xl p-5 mb-6 flex justify-between items-center z-10 relative flex-wrap gap-4 shadow-lg">
         <div className="flex items-center gap-4">
-          <img src="/logo.png" alt="Logo" className="w-14 h-14 rounded-full border-2 border-white/50 shadow-md object-cover bg-white" />
+          <img src={collegeSettings.logo_path ? `http://localhost/pnpman/${collegeSettings.logo_path}` : '/logo.png'} alt="Logo" className="w-14 h-14 rounded-full border-2 border-white/50 shadow-md object-cover bg-white" />
           <div>
             <h1 className="text-2xl font-bold text-white drop-shadow-sm">
               ระบบบริหารจัดการโครงสร้างสถานศึกษาอาชีวศึกษา
             </h1>
-            <p className="text-rose-100 text-sm font-medium">วิทยาลัยการอาชีพพนมไพร</p>
+            <p className="text-white/80 text-sm font-medium">{collegeSettings.college_name}</p>
             <div className="flex items-center gap-3 mt-2">
               <select 
                 value={academicYear} 
@@ -705,6 +818,10 @@ function App() {
           years={years} 
           currentYear={academicYear} 
           onRefresh={fetchData} 
+          departments={departments}
+          jobs={jobs}
+          collegeSettings={collegeSettings}
+          token={token}
         />
       )}
       {showAnalytics && (
@@ -721,6 +838,7 @@ function App() {
       <PrintReport 
         personnel={personnel} jobs={jobs} departments={departments} 
         assignments={assignments} academicYear={academicYear} 
+        collegeSettings={collegeSettings}
       />
     </div>
   );

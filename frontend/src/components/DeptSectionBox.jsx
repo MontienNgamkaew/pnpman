@@ -1,6 +1,7 @@
 import React from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { User, X, BookOpen, GraduationCap } from 'lucide-react';
+import { sortAssignments } from '../utils/sorting';
 
 const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editMode, onRemoveAssignment, highlightPersonId }) => {
   const droppableHeadId = `job|${job.id}|หัวหน้าแผนกวิชา`;
@@ -86,7 +87,7 @@ const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editM
               className={`min-h-[38px] rounded-lg border px-2 py-1 flex flex-wrap items-center gap-1.5 transition-all w-full
                 ${snapshot.isDraggingOver && editMode ? 'bg-sky-50 border-sky-300 ring-2 ring-sky-100' : 'bg-gray-50 border-gray-200'}`}
             >
-              {assignedTeacher.map((assignment, index) => {
+              {sortAssignments(assignedTeacher, personnel).map((assignment, index) => {
                 const person = personnel.find(p => p.id === assignment.personnel_id);
                 if (!person) return null;
                 return (

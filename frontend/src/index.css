@@ -4,6 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Default Rose Theme */
+  --theme-body-bg: linear-gradient(135deg, #fdf2f2 0%, #fce4e4 30%, #fef0f0 60%, #f5e6e6 100%);
+  --theme-primary-gradient: linear-gradient(135deg, #6b1525 0%, #8b1a2b 40%, #7a1827 70%, #5c1220 100%);
+  --theme-primary-color: #8b1a2b;
+  --theme-primary-hover: #7a1827;
+  --theme-accent-color: #e8a0a0;
+  --theme-accent-hover: #c0494e;
+  --theme-scroll-track: #fef2f2;
+  --theme-scroll-thumb: linear-gradient(180deg, #e8a0a0, #d07070);
+  --theme-scroll-thumb-hover: linear-gradient(180deg, #c0494e, #a03040);
+}
+
 body {
   margin: 0;
   font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -11,7 +24,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #fdf2f2 0%, #fce4e4 30%, #fef0f0 60%, #f5e6e6 100%);
+  background: var(--theme-body-bg);
   min-height: 100vh;
   color: #1e293b;
 }
@@ -25,11 +38,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e8a0a0;
+  background: var(--theme-accent-color);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #c0494e;
+  background: var(--theme-accent-hover);
 }
 
 /* Staff Pool Scrollbar — more visible */
@@ -37,16 +50,16 @@ body {
   width: 8px;
 }
 .staff-pool-scroll::-webkit-scrollbar-track {
-  background: #fef2f2;
+  background: var(--theme-scroll-track);
   border-radius: 10px;
 }
 .staff-pool-scroll::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #e8a0a0, #d07070);
+  background: var(--theme-scroll-thumb);
   border-radius: 10px;
-  border: 1px solid #fef2f2;
+  border: 1px solid var(--theme-scroll-track);
 }
 .staff-pool-scroll::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #c0494e, #a03040);
+  background: var(--theme-scroll-thumb-hover);
 }
 
 /* Glass Panel */
@@ -58,7 +71,7 @@ body {
 
 /* Premium Header Gradient */
 .header-gradient {
-  background: linear-gradient(135deg, #6b1525 0%, #8b1a2b 40%, #7a1827 70%, #5c1220 100%);
+  background: var(--theme-primary-gradient);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 

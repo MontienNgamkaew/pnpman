@@ -1,6 +1,7 @@
 import React from 'react';
+import { sortAssignments } from '../utils/sorting';
 
-const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }) => {
+const PrintReport = ({ personnel, jobs, departments, assignments, academicYear, collegeSettings }) => {
   const getPersonName = (id) => personnel.find(p => p.id === id)?.name || '';
   const getPersonTitle = (id) => personnel.find(p => p.id === id)?.main_title || '';
 
@@ -29,9 +30,9 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
     const buildJobData = (job) => {
       const jobAssignments = assignments.filter(a => a.job_id === job.id);
       const head = jobAssignments.find(a => ['หัวหน้างาน', 'หัวหน้าแผนกวิชา'].includes(a.role));
-      const assistants = jobAssignments.filter(a => a.role === 'ผู้ช่วยหัวหน้างาน');
-      const staff = jobAssignments.filter(a => a.role === 'เจ้าหน้าที่งาน');
-      const teachers = jobAssignments.filter(a => a.role === 'ครูในแผนกวิชา');
+      const assistants = sortAssignments(jobAssignments.filter(a => a.role === 'ผู้ช่วยหัวหน้างาน'), personnel);
+      const staff = sortAssignments(jobAssignments.filter(a => a.role === 'เจ้าหน้าที่งาน'), personnel);
+      const teachers = sortAssignments(jobAssignments.filter(a => a.role === 'ครูในแผนกวิชา'), personnel);
       return {
         name: job.name,
         headName: head ? getPersonName(head.personnel_id) : '- ว่าง -',
@@ -54,6 +55,8 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
 
   const totalPages = deptData.length + 1;
 
+  const collegeName = collegeSettings?.college_name || 'วิทยาลัยการอาชีพพนมไพร';
+
   return (
     <div id="printable-report" className="hidden print:block absolute top-0 left-0 w-full bg-white text-black font-sans">
 
@@ -61,7 +64,7 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
       <div className="print-page" style={{ padding: '15mm 10mm 8mm' }}>
         <div className="text-center mb-4">
           <h1 className="text-xl font-bold mb-0">ผังโครงสร้างการบริหารงาน</h1>
-          <h2 className="text-base">วิทยาลัยการอาชีพพนมไพร ปีการศึกษา {academicYear}</h2>
+          <h2 className="text-base">{collegeName} ปีการศึกษา {academicYear}</h2>
         </div>
 
         {/* Director Box */}
@@ -91,7 +94,7 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
                 <div className="org-box-name" style={{fontSize: '11.5px'}}>{d.deputyName}</div>
                 {d.deputyTitle && <div className="org-box-title">{d.deputyTitle}</div>}
                 <div className="org-box-dept">{d.dept.name}</div>
-              </div>
+               </div>
             </div>
           ))}
         </div>
@@ -109,7 +112,7 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
           {/* Header */}
           <div className="text-center mb-2 border-b border-gray-800 pb-1">
             <h2 className="text-base font-bold leading-tight">ผังโครงสร้างบุคลากร — {d.dept.name}</h2>
-            <p className="text-xs text-gray-500">วิทยาลัยการอาชีพพนมไพร ปีการศึกษา {academicYear}</p>
+            <p className="text-xs text-gray-500">{collegeName} ปีการศึกษา {academicYear}</p>
           </div>
 
           {/* Director at top (small) */}

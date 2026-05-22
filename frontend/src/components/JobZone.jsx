@@ -3,6 +3,7 @@ import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { User, X, MessageSquare, Pencil } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
+import { sortAssignments } from '../utils/sorting';
 
 export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPersonClick, isAdmin, editMode, onRemoveAssignment, highlightPersonId, onRefresh, academicYear }) => {
   const roleAssignments = assignments.filter(a => a.job_id === job.id && a.role === roleName);
@@ -80,7 +81,7 @@ export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPerso
               ${snapshot.isDraggingOver && !isFull && editMode ? `${colors.bg} ${colors.border} shadow-inner` : 'bg-gray-50/50 border-gray-200'}
               ${isFull ? 'opacity-60' : ''}`}
           >
-            {roleAssignments.map((assignment, index) => {
+            {sortAssignments(roleAssignments, personnel).map((assignment, index) => {
               const person = personnel.find(p => p.id === assignment.personnel_id);
               if (!person) return null;
               return (
