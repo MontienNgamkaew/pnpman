@@ -60,7 +60,7 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
       {/* ===== Page 1: Overview — Director + all Deputies ===== */}
       <div className="print-page" style={{ padding: '15mm 10mm 8mm' }}>
         <div className="text-center mb-4">
-          <h1 className="text-lg font-bold mb-0">ผังโครงสร้างการบริหารงาน</h1>
+          <h1 className="text-xl font-bold mb-0">ผังโครงสร้างการบริหารงาน</h1>
           <h2 className="text-base">วิทยาลัยการอาชีพพนมไพร ปีการศึกษา {academicYear}</h2>
         </div>
 
@@ -88,7 +88,7 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
               <div className="org-vline" style={{height: '16px'}}></div>
               <div className="org-box org-box-deputy">
                 <div className="org-box-role">รองผู้อำนวยการ</div>
-                <div className="org-box-name" style={{fontSize: '9px'}}>{d.deputyName}</div>
+                <div className="org-box-name" style={{fontSize: '11.5px'}}>{d.deputyName}</div>
                 {d.deputyTitle && <div className="org-box-title">{d.deputyTitle}</div>}
                 <div className="org-box-dept">{d.dept.name}</div>
               </div>
@@ -108,15 +108,15 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
         <div key={dIdx} className={isLastPage ? '' : 'print-page'} style={{ padding: '8mm 8mm 5mm' }}>
           {/* Header */}
           <div className="text-center mb-2 border-b border-gray-800 pb-1">
-            <h2 className="text-sm font-bold leading-tight">ผังโครงสร้างบุคลากร — {d.dept.name}</h2>
-            <p className="text-[9px] text-gray-500">วิทยาลัยการอาชีพพนมไพร ปีการศึกษา {academicYear}</p>
+            <h2 className="text-base font-bold leading-tight">ผังโครงสร้างบุคลากร — {d.dept.name}</h2>
+            <p className="text-xs text-gray-500">วิทยาลัยการอาชีพพนมไพร ปีการศึกษา {academicYear}</p>
           </div>
 
           {/* Director at top (small) */}
           <div className="flex justify-center">
             <div className="org-box-sm org-box-director">
               <div className="org-box-role">ผู้อำนวยการวิทยาลัย</div>
-              <div className="org-box-name" style={{fontSize: '9px'}}>{directorName}</div>
+              <div className="org-box-name" style={{fontSize: '11px'}}>{directorName}</div>
             </div>
           </div>
           <div className="flex justify-center"><div className="org-vline" style={{height: '10px'}}></div></div>
@@ -124,8 +124,8 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
           {/* Deputy Director */}
           <div className="flex justify-center">
             <div className="org-box org-box-deputy" style={{minWidth: '120px'}}>
-              <div className="org-box-role" style={{fontSize: '7px'}}>{d.deputyJobName || 'รองผู้อำนวยการ'}</div>
-              <div className="org-box-name" style={{fontSize: '9px'}}>{d.deputyName}</div>
+              <div className="org-box-role" style={{fontSize: '9.5px'}}>{d.deputyJobName || 'รองผู้อำนวยการ'}</div>
+              <div className="org-box-name" style={{fontSize: '11.5px'}}>{d.deputyName}</div>
             </div>
           </div>
           <div className="flex justify-center"><div className="org-vline" style={{height: '10px'}}></div></div>
@@ -179,32 +179,32 @@ const PrintReport = ({ personnel, jobs, departments, assignments, academicYear }
           {d.sectionJobs.length > 0 && (
             <div className="mt-3">
               <div className="text-center mb-1">
-                <span className="inline-block bg-emerald-100 text-emerald-800 text-[8px] px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                <span className="inline-block bg-emerald-100 text-emerald-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-emerald-200">
                   แผนกวิชา — หัวหน้าแผนกวิชาและครูผู้สอน
                 </span>
               </div>
-              <table className="w-full border-collapse" style={{fontSize: '8px'}}>
+              <table className="w-full border-collapse" style={{fontSize: '11px'}}>
                 <thead>
                   <tr className="bg-gray-100">
-                    <th className="border border-gray-300 p-1 text-left" style={{width: '50%'}}>แผนกวิชา</th>
-                    <th className="border border-gray-300 p-1 text-left" style={{width: '30%'}}>หัวหน้าแผนกวิชา</th>
-                    <th className="border border-gray-300 p-1 text-left" style={{width: '20%'}}>ตำแหน่งหลัก</th>
+                    <th className="border border-gray-300 p-1.5 text-left" style={{width: '50%'}}>แผนกวิชา</th>
+                    <th className="border border-gray-300 p-1.5 text-left" style={{width: '30%'}}>หัวหน้าแผนกวิชา</th>
+                    <th className="border border-gray-300 p-1.5 text-left" style={{width: '20%'}}>ตำแหน่งหลัก</th>
                   </tr>
                 </thead>
                 <tbody>
                   {d.sectionJobs.map((sj, sjIdx) => (
                     <tr key={sjIdx}>
-                      <td className="border border-gray-300 p-1 font-medium">
-                        <div>{sj.name}</div>
+                      <td className="border border-gray-300 p-1.5 font-medium">
+                        <div className="text-[11.5px] font-bold">{sj.name}</div>
                         {sj.teachers && sj.teachers.length > 0 && (
-                          <div className="text-[7px] text-gray-500 mt-0.5 font-normal leading-normal">
+                          <div className="text-[9.5px] text-gray-500 mt-1 font-normal leading-normal">
                             <span className="font-bold text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-100/50 mr-1">ครูผู้สอน:</span>
                             {sj.teachers.map(t => t.name).join(', ')}
                           </div>
                         )}
                       </td>
-                      <td className="border border-gray-300 p-1">{sj.headName}</td>
-                      <td className="border border-gray-300 p-1 text-gray-500">{sj.headTitle || '-'}</td>
+                      <td className="border border-gray-300 p-1.5">{sj.headName}</td>
+                      <td className="border border-gray-300 p-1.5 text-gray-600 font-medium">{sj.headTitle || '-'}</td>
                     </tr>
                   ))}
                 </tbody>

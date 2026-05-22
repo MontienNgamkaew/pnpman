@@ -98,24 +98,24 @@ body {
   background: linear-gradient(to bottom, #eff6ff, #dbeafe);
 }
 .org-box-role {
-  font-size: 8px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #666;
   margin-bottom: 1px;
 }
 .org-box-name {
-  font-size: 10px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #1a1a1a;
   line-height: 1.2;
 }
 .org-box-title {
-  font-size: 8px;
+  font-size: 10.5px;
   color: #888;
   margin-top: 0;
 }
 .org-box-dept {
-  font-size: 8px;
+  font-size: 10.5px;
   color: #1d4ed8;
   font-weight: 600;
   margin-top: 2px;
@@ -144,9 +144,9 @@ body {
 .org-job-title {
   background: linear-gradient(to right, #881337, #9f1239);
   color: white;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 3px 4px;
+  padding: 4px 5px;
   text-align: center;
   line-height: 1.2;
 }
@@ -169,15 +169,15 @@ body {
   border-bottom: none;
 }
 .org-role-label {
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 700;
-  padding: 0px 4px;
+  padding: 1px 4px;
   border-radius: 3px;
   display: inline-block;
   align-self: flex-start;
 }
 .org-person-name {
-  font-size: 9px;
+  font-size: 11.5px;
   font-weight: 600;
   color: #1e293b;
   padding-left: 2px;
