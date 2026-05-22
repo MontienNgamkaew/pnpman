@@ -120,9 +120,17 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
         
         <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-indigo-50 to-white">
           <div className="flex items-center gap-4">
-            <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-3 rounded-xl shadow-md">
-              <UserCircle size={28} className="text-white" />
-            </div>
+            {person.photo_path ? (
+              <img
+                src={`http://localhost/pnpman/${person.photo_path}`}
+                className="w-14 h-14 rounded-full object-cover border-2 border-indigo-200 shadow-md shrink-0"
+                alt={person.name}
+              />
+            ) : (
+              <div className="bg-gradient-to-br from-indigo-500 to-blue-600 p-3 rounded-xl shadow-md">
+                <UserCircle size={28} className="text-white" />
+              </div>
+            )}
             <div>
               <h2 className="text-xl font-bold text-gray-800">{person.name}</h2>
               <p className="text-gray-500 font-medium text-sm">{person.main_title}</p>

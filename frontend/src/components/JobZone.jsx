@@ -95,7 +95,17 @@ export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPerso
                       className={`flex items-center gap-2 ${colors.bg} border ${colors.border} rounded-lg px-2.5 py-2 cursor-pointer hover:shadow-sm shadow-sm transition-all group
                         ${highlightPersonId === person.id ? 'ring-3 ring-amber-400 shadow-lg shadow-amber-200 animate-pulse scale-[1.02]' : ''}`}
                     >
-                      <User size={14} className={`${colors.text} shrink-0`} />
+                      {person.photo_path ? (
+                        <img
+                          src={`http://localhost/pnpman/${person.photo_path}`}
+                          className="w-7 h-7 rounded-full object-cover border border-white shadow-sm shrink-0"
+                          alt={person.name}
+                        />
+                      ) : (
+                        <div className={`w-7 h-7 rounded-full border flex items-center justify-center shadow-sm shrink-0 bg-white/85 ${colors.border} ${colors.text}`}>
+                          <User size={12} />
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <span className={`text-xs font-semibold ${colors.text} truncate block`}>{person.name}</span>
                         <span className="text-[10px] text-gray-400 font-medium truncate block">{(person.main_title || '').trim() || 'ไม่ระบุ'}</span>

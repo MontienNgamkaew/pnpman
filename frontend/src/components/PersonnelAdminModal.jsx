@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { X, Plus, Trash2, Edit2, Check, Upload, Download, FileSpreadsheet } from 'lucide-react';
+import { X, Plus, Trash2, Edit2, Check, Upload, Download, FileSpreadsheet, User } from 'lucide-react';
 
 const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
   const [editingId, setEditingId] = useState(null);
@@ -12,15 +12,70 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [filterCategory, setFilterCategory] = useState('All');
+  
   const fileInputRef = useRef(null);
+  const addFileInputRef = useRef(null);
+  const editFileInputRef = useRef(null);
+
+  const [addFile, setAddFile] = useState(null);
+  const [addPhotoPreview, setAddPhotoPreview] = useState(null);
+  const [editFile, setEditFile] = useState(null);
+  const [editPhotoPreview, setEditPhotoPreview] = useState(null);
+  const [deleteEditPhoto, setDeleteEditPhoto] = useState(false);
 
   const TITLE_OPTIONS = ['ผู้อำนวยการ', 'รองผู้อำนวยการ', 'ข้าราชการครู', 'พนักงานราชการครู', 'ครูพิเศษสอน', 'เจ้าหน้าที่'];
+
+  const handleAddFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        Swal.fire('แจ้งเตือน', 'ขนาดไฟล์รูปภาพห้ามเกิน 2MB', 'warning');
+        return;
+      }
+      setAddFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAddPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleEditFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        Swal.fire('แจ้งเตือน', 'ขนาดไฟล์รูปภาพห้ามเกิน 2MB', 'warning');
+        return;
+      }
+      setEditFile(file);
+      setDeleteEditPhoto(false);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleAdd = async () => {
     if (!newName || !newTitle) return Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
     try {
-      await axios.post('http://localhost/pnpman/api/manage_personnel.php', { action: 'add', name: newName, main_title: newTitle });
-      setNewName(''); setNewTitle(''); setIsAdding(false);
+      const formData = new FormData();
+      formData.append('action', 'add');
+      formData.append('name', newName);
+      formData.append('main_title', newTitle);
+      if (addFile) {
+        formData.append('photo', addFile);
+      }
+      await axios.post('http://localhost/pnpman/api/manage_personnel.php', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setNewName('');
+      setNewTitle('');
+      setAddFile(null);
+      setAddPhotoPreview(null);
+      setIsAdding(false);
       onRefresh();
       Swal.fire({ title: 'เพิ่มสำเร็จ!', icon: 'success', timer: 1200, showConfirmButton: false });
     } catch (err) {
@@ -30,8 +85,24 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
 
   const handleUpdate = async (id) => {
     try {
-      await axios.post('http://localhost/pnpman/api/manage_personnel.php', { action: 'update', id, name: editName, main_title: editTitle });
+      const formData = new FormData();
+      formData.append('action', 'update');
+      formData.append('id', id);
+      formData.append('name', editName);
+      formData.append('main_title', editTitle);
+      if (editFile) {
+        formData.append('photo', editFile);
+      }
+      if (deleteEditPhoto) {
+        formData.append('delete_photo', 'true');
+      }
+      await axios.post('http://localhost/pnpman/api/manage_personnel.php', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       setEditingId(null);
+      setEditFile(null);
+      setEditPhotoPreview(null);
+      setDeleteEditPhoto(false);
       onRefresh();
       Swal.fire({ title: 'แก้ไขสำเร็จ!', icon: 'success', timer: 1200, showConfirmButton: false });
     } catch (err) {
@@ -131,7 +202,14 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
     window.open('http://localhost/pnpman/api/csv_template.php', '_blank');
   };
 
-  const startEdit = (p) => { setEditingId(p.id); setEditName(p.name); setEditTitle(p.main_title || ''); };
+  const startEdit = (p) => {
+    setEditingId(p.id);
+    setEditName(p.name);
+    setEditTitle(p.main_title || '');
+    setEditFile(null);
+    setEditPhotoPreview(null);
+    setDeleteEditPhoto(false);
+  };
 
   // Sort & filter personnel by title order
   const sortedPersonnel = [...personnel]
@@ -222,21 +300,57 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
 
             {/* Manual Add Form */}
             {isAdding && (
-              <div className="flex gap-3 items-end bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
-                <div className="flex-1">
-                  <label className="block text-xs font-bold text-gray-600 mb-1">ชื่อ-นามสกุล</label>
-                  <input type="text" value={newName} onChange={e => setNewName(e.target.value)} className="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="เช่น นายสมชาย ใจดี" />
+              <div className="flex gap-4 items-center bg-gray-55/50 p-4 rounded-xl border border-dashed border-indigo-200">
+                {/* Round Photo Uploader */}
+                <div className="relative group shrink-0 cursor-pointer" onClick={() => addFileInputRef.current?.click()} title="เลือกรูปภาพประจำตัว">
+                  <div className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-white overflow-hidden hover:border-indigo-400 hover:bg-indigo-50/20 transition-all shadow-sm">
+                    {addPhotoPreview ? (
+                      <img src={addPhotoPreview} className="w-full h-full object-cover rounded-full" alt="Preview" />
+                    ) : (
+                      <>
+                        <Upload size={16} className="text-gray-400 mb-0.5" />
+                        <span className="text-[9px] font-bold text-gray-400 uppercase">รูปถ่าย</span>
+                      </>
+                    )}
+                  </div>
+                  {addPhotoPreview && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAddFile(null);
+                        setAddPhotoPreview(null);
+                      }}
+                      className="absolute -top-1 -right-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full p-0.5 shadow-md transition-colors"
+                      title="ลบรูปภาพออก"
+                    >
+                      <X size={10} />
+                    </button>
+                  )}
+                  <input
+                    ref={addFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAddFileChange}
+                  />
                 </div>
-                <div className="flex-1">
-                  <label className="block text-xs font-bold text-gray-600 mb-1">ตำแหน่งหลัก</label>
-                  <select value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="">-- เลือก --</option>
-                    {TITLE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
+
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">ชื่อ-นามสกุล</label>
+                    <input type="text" value={newName} onChange={e => setNewName(e.target.value)} className="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white" placeholder="เช่น นายสมชาย ใจดี" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 mb-1">ตำแหน่งหลัก</label>
+                    <select value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                      <option value="">-- เลือก --</option>
+                      {TITLE_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <button onClick={handleAdd} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700">บันทึก</button>
-                  <button onClick={() => setIsAdding(false)} className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-300">ยกเลิก</button>
+                <div className="flex gap-2 shrink-0 self-end">
+                  <button onClick={handleAdd} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-sm transition-colors">บันทึก</button>
+                  <button onClick={() => { setIsAdding(false); setAddFile(null); setAddPhotoPreview(null); }} className="bg-gray-250 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-300 transition-colors border">ยกเลิก</button>
                 </div>
               </div>
             )}
@@ -303,11 +417,61 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
                     )}
                   <tr className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-4 py-2.5">
-                      {editingId === p.id ? (
-                        <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full border rounded p-1 text-sm outline-none focus:ring-2 focus:ring-indigo-500" />
-                      ) : (
-                        <span className="font-semibold text-gray-800">{p.name}</span>
-                      )}
+                      <div className="flex items-center gap-3">
+                        {editingId === p.id ? (
+                          <div className="relative group shrink-0 cursor-pointer" onClick={() => editFileInputRef.current?.click()} title="คลิกเพื่อเปลี่ยนรูปภาพ">
+                            <div className="w-10 h-10 rounded-full border-2 border-indigo-300 overflow-hidden relative shadow-sm">
+                              {editPhotoPreview ? (
+                                <img src={editPhotoPreview} className="w-full h-full object-cover rounded-full" alt="Preview" />
+                              ) : p.photo_path && !deleteEditPhoto ? (
+                                <img src={`http://localhost/pnpman/${p.photo_path}`} className="w-full h-full object-cover rounded-full" alt="Current" />
+                              ) : (
+                                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+                                  <Upload size={14} />
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Upload size={12} className="text-white" />
+                              </div>
+                            </div>
+                            {(editPhotoPreview || (p.photo_path && !deleteEditPhoto)) && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditFile(null);
+                                  setEditPhotoPreview(null);
+                                  setDeleteEditPhoto(true);
+                                }}
+                                className="absolute -top-1 -right-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full p-0.5 shadow-md transition-colors z-10"
+                                title="ลบรูปประจำตัว"
+                              >
+                                <X size={8} />
+                              </button>
+                            )}
+                            <input
+                              ref={editFileInputRef}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleEditFileChange}
+                            />
+                          </div>
+                        ) : (
+                          p.photo_path ? (
+                            <img src={`http://localhost/pnpman/${p.photo_path}`} className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm shrink-0" alt={p.name} />
+                          ) : (
+                            <div className={`w-10 h-10 rounded-full border flex items-center justify-center shadow-sm shrink-0 ${TITLE_COLORS_MAP[p.main_title || 'ไม่ระบุ'] || 'bg-gray-100 border-gray-200 text-gray-500'}`}>
+                              <User size={16} />
+                            </div>
+                          )
+                        )}
+                        
+                        {editingId === p.id ? (
+                          <input type="text" value={editName} onChange={e => setEditName(e.target.value)} className="w-full border rounded p-1.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                        ) : (
+                          <span className="font-semibold text-gray-800">{p.name}</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-2.5">
                       {editingId === p.id ? (

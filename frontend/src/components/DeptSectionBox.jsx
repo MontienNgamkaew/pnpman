@@ -46,7 +46,17 @@ const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editM
                           ${highlightPersonId === person.id ? 'ring-3 ring-amber-400 shadow-lg shadow-amber-200 animate-pulse scale-[1.02]' : ''}`}
                       >
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <GraduationCap size={13} className="text-emerald-700 shrink-0" />
+                          {person.photo_path ? (
+                            <img
+                              src={`http://localhost/pnpman/${person.photo_path}`}
+                              className="w-7 h-7 rounded-full object-cover border border-emerald-100 shadow-sm shrink-0"
+                              alt={person.name}
+                            />
+                          ) : (
+                            <div className="w-7 h-7 rounded-full border border-emerald-200 bg-white flex items-center justify-center shadow-sm shrink-0 text-emerald-700">
+                              <GraduationCap size={13} className="shrink-0" />
+                            </div>
+                          )}
                           <div className="min-w-0">
                             <span className="text-xs font-bold text-emerald-900 truncate block max-w-[160px]">{person.name}</span>
                             <span className="text-[9px] text-emerald-600/70 font-medium truncate block">{(person.main_title || '').trim() || 'ไม่ระบุ'}</span>
@@ -101,7 +111,17 @@ const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editM
                         className={`flex items-center gap-1 bg-sky-50/80 border border-sky-150 rounded-lg px-2 py-0.5 cursor-pointer hover:bg-sky-100 hover:border-sky-200 shadow-sm group transition-all
                           ${highlightPersonId === person.id ? 'ring-3 ring-amber-400 shadow-lg shadow-amber-200 animate-pulse scale-[1.02]' : ''}`}
                       >
-                        <User size={11} className="text-sky-600 shrink-0" />
+                        {person.photo_path ? (
+                          <img
+                            src={`http://localhost/pnpman/${person.photo_path}`}
+                            className="w-5 h-5 rounded-full object-cover border border-sky-100 shadow-sm shrink-0"
+                            alt={person.name}
+                          />
+                        ) : (
+                          <div className="w-5 h-5 rounded-full border border-sky-200 bg-white flex items-center justify-center shadow-sm shrink-0 text-sky-600">
+                            <User size={9} className="shrink-0" />
+                          </div>
+                        )}
                         <div className="min-w-0">
                           <span className="text-xs font-semibold text-sky-900 truncate block max-w-[120px]">{person.name}</span>
                         </div>

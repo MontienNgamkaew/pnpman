@@ -121,9 +121,17 @@ const StaffPool = ({ personnel, assignments, onPersonClick, isAdmin, editMode })
                       `}
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="bg-gradient-to-br from-rose-100 to-red-100 p-2 rounded-lg border border-rose-100/50 shadow-sm shrink-0">
-                          <User size={16} className="text-rose-700" />
-                        </div>
+                        {person.photo_path ? (
+                          <img
+                            src={`http://localhost/pnpman/${person.photo_path}`}
+                            className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm shrink-0"
+                            alt={person.name}
+                          />
+                        ) : (
+                          <div className={`w-10 h-10 rounded-full border flex items-center justify-center shadow-sm shrink-0 ${titleColor}`}>
+                            <User size={16} />
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <p className="font-bold text-sm text-gray-800 truncate leading-tight">{person.name}</p>
                           <span className={`inline-block ${titleColor} px-2 py-0.5 rounded-full text-[11px] font-bold mt-1 border`}>
