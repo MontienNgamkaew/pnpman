@@ -24,9 +24,25 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   background: var(--theme-body-bg);
   min-height: 100vh;
   color: #1e293b;
+}
+
+/* Force image rendering quality and hardware acceleration */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+}
+
+/* Prevent text/border blur during DND transforms */
+[data-rfd-draggable-id], [data-rbd-draggable-id] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Custom Scrollbar */
