@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { X, Lock, User } from 'lucide-react';
+import { API_URL } from '../utils/api';
 
 const LoginModal = ({ onClose, onLogin }) => {
   const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ const LoginModal = ({ onClose, onLogin }) => {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost/pnpman/api/login.php', { username, password });
+      const res = await axios.post(`${API_URL}login.php`, { username, password });
       if (res.data.status === 'success') {
         onLogin(res.data.token);
       }

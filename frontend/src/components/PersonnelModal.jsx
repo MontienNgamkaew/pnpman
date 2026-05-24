@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Building2, UserCircle, Plus, Trash2, MessageSquare, Pencil } from 'lucide-react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { BASE_URL, API_URL } from '../utils/api';
 
 const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRefresh, isAdmin, editMode, academicYear }) => {
   const [assignDept, setAssignDept] = useState('');
@@ -34,7 +35,7 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
     });
     if (result.isConfirmed) {
       try {
-        await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+        await axios.post(`${API_URL}remove_assignment.php`, {
           personnel_id: person.id, job_id: jobId, role, academic_year: academicYear,
         });
         if (onRefresh) onRefresh();
@@ -69,7 +70,7 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
 
     if (comment !== undefined) {
       try {
-        await axios.post('http://localhost/pnpman/api/update_comment.php', {
+        await axios.post(`${API_URL}update_comment.php`, {
           personnel_id: person.id,
           job_id: roleItem.job_id,
           role: roleItem.role,
@@ -90,7 +91,7 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
     
     setIsSubmitting(true);
     try {
-      const res = await axios.post('http://localhost/pnpman/api/assign_job.php', {
+      const res = await axios.post(`${API_URL}assign_job.php`, {
         personnel_id: person.id, job_id: parseInt(assignJob), role: assignRole, academic_year: academicYear,
       });
       if (res.data.status === 'success') {
@@ -122,7 +123,7 @@ const PersonnelModal = ({ person, assignments, jobs, departments, onClose, onRef
           <div className="flex items-center gap-4">
             {person.photo_path ? (
               <img
-                src={`http://localhost/pnpman/${person.photo_path}`}
+                src={`${BASE_URL}${person.photo_path}`}
                 className="w-14 h-14 rounded-full object-cover border-2 border-indigo-200 shadow-md shrink-0"
                 alt={person.name}
               />

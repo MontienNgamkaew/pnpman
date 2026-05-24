@@ -2,6 +2,7 @@ import React from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { User, X, BookOpen, GraduationCap } from 'lucide-react';
 import { sortAssignments } from '../utils/sorting';
+import { BASE_URL } from '../utils/api';
 
 const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editMode, onRemoveAssignment, highlightPersonId }) => {
   const droppableHeadId = `job|${job.id}|หัวหน้าแผนกวิชา`;
@@ -48,7 +49,7 @@ const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editM
                         <div className="flex items-center gap-1.5 min-w-0">
                           {person.photo_path ? (
                             <img
-                              src={`http://localhost/pnpman/${person.photo_path}`}
+                              src={`${BASE_URL}${person.photo_path}`}
                               className="w-7 h-7 rounded-full object-cover border border-emerald-100 shadow-sm shrink-0"
                               alt={person.name}
                             />
@@ -113,7 +114,7 @@ const SectionRow = ({ job, assignments, personnel, onPersonClick, isAdmin, editM
                       >
                         {person.photo_path ? (
                           <img
-                            src={`http://localhost/pnpman/${person.photo_path}`}
+                            src={`${BASE_URL}${person.photo_path}`}
                             className="w-5 h-5 rounded-full object-cover border border-sky-100 shadow-sm shrink-0"
                             alt={person.name}
                           />

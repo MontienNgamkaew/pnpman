@@ -6,6 +6,7 @@ import {
   AlertTriangle, RefreshCw, Paintbrush, Building2, Briefcase, 
   Plus, Trash2, Edit3, ArrowUp, ArrowDown, Upload, Check, Image
 } from 'lucide-react';
+import { BASE_URL, API_URL } from '../utils/api';
 
 const themeOptions = [
   { id: 'rose', name: 'Rose Gold', primaryColor: '#8b1a2b', accentColor: '#e8a0a0', label: 'แดง/ชมพู (ต้นฉบับ)' },
@@ -34,7 +35,7 @@ const SettingsModal = ({
   const [selectedTheme, setSelectedTheme] = useState(collegeSettings.theme_preset || 'rose');
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(
-    collegeSettings.logo_path ? `http://localhost/pnpman/${collegeSettings.logo_path}` : ''
+    collegeSettings.logo_path ? `${BASE_URL}${collegeSettings.logo_path}` : ''
   );
   const [deleteLogo, setDeleteLogo] = useState(false);
 
@@ -74,7 +75,7 @@ const SettingsModal = ({
     if (collegeSettings) {
       setCollegeName(collegeSettings.college_name || '');
       setSelectedTheme(collegeSettings.theme_preset || 'rose');
-      setLogoPreview(collegeSettings.logo_path ? `http://localhost/pnpman/${collegeSettings.logo_path}` : '');
+      setLogoPreview(collegeSettings.logo_path ? `${BASE_URL}${collegeSettings.logo_path}` : '');
     }
   }, [collegeSettings]);
 
@@ -115,7 +116,7 @@ const SettingsModal = ({
         formData.append('logo', logoFile);
       }
 
-      const res = await axios.post('http://localhost/pnpman/api/update_settings.php', formData, {
+      const res = await axios.post(`${API_URL}update_settings.php`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -140,7 +141,7 @@ const SettingsModal = ({
     if (!newDeptName.trim()) return;
 
     try {
-      const res = await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+      const res = await axios.post(`${API_URL}manage_structure.php`, {
         action: 'add_dept',
         name: newDeptName.trim()
       });
@@ -160,7 +161,7 @@ const SettingsModal = ({
   const handleSaveDeptName = async (id) => {
     if (!editingDeptName.trim()) return;
     try {
-      await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+      await axios.post(`${API_URL}manage_structure.php`, {
         action: 'edit_dept',
         id,
         name: editingDeptName.trim()
@@ -184,7 +185,7 @@ const SettingsModal = ({
     list[targetIndex] = temp;
 
     try {
-      await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+      await axios.post(`${API_URL}manage_structure.php`, {
         action: 'reorder_depts',
         ids: list.map(d => d.id)
       });
@@ -218,7 +219,7 @@ const SettingsModal = ({
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+        const res = await axios.post(`${API_URL}manage_structure.php`, {
           action: 'delete_dept',
           id: dept.id
         });
@@ -240,7 +241,7 @@ const SettingsModal = ({
     if (!newJobName.trim() || !selectedDeptId) return;
 
     try {
-      const res = await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+      const res = await axios.post(`${API_URL}manage_structure.php`, {
         action: 'add_job',
         department_id: selectedDeptId,
         name: newJobName.trim()
@@ -262,7 +263,7 @@ const SettingsModal = ({
   const handleSaveJob = async (id) => {
     if (!editingJobName.trim()) return;
     try {
-      await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+      await axios.post(`${API_URL}manage_structure.php`, {
         action: 'edit_job',
         id,
         name: editingJobName.trim(),
@@ -287,7 +288,7 @@ const SettingsModal = ({
     list[targetIndex] = temp;
 
     try {
-      await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+      await axios.post(`${API_URL}manage_structure.php`, {
         action: 'reorder_jobs',
         ids: list.map(j => j.id)
       });
@@ -323,7 +324,7 @@ const SettingsModal = ({
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post('http://localhost/pnpman/api/manage_structure.php', {
+        const res = await axios.post(`${API_URL}manage_structure.php`, {
           action: 'delete_job',
           id: job.id
         });
@@ -370,7 +371,7 @@ const SettingsModal = ({
     if (result.isConfirmed) {
       setIsSubmitting(true);
       try {
-        const res = await axios.post('http://localhost/pnpman/api/copy_year.php', {
+        const res = await axios.post(`${API_URL}copy_year.php`, {
           from_year: fromYear,
           to_year: toYear,
         });
@@ -403,7 +404,7 @@ const SettingsModal = ({
 
     setIsSubmitting(true);
     try {
-      await axios.post('http://localhost/pnpman/api/change_password.php', {
+      await axios.post(`${API_URL}change_password.php`, {
         current_password: currentPw,
         new_password: newPw,
       });

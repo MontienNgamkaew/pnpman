@@ -4,6 +4,7 @@ import { User, X, MessageSquare, Pencil } from 'lucide-react';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { sortAssignments } from '../utils/sorting';
+import { BASE_URL, API_URL } from '../utils/api';
 
 export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPersonClick, isAdmin, editMode, onRemoveAssignment, highlightPersonId, onRefresh, academicYear }) => {
   const roleAssignments = assignments.filter(a => a.job_id === job.id && a.role === roleName);
@@ -46,7 +47,7 @@ export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPerso
 
     if (comment !== undefined) {
       try {
-        await axios.post('http://localhost/pnpman/api/update_comment.php', {
+        await axios.post(`${API_URL}update_comment.php`, {
           personnel_id: assignment.personnel_id,
           job_id: assignment.job_id,
           role: assignment.role,
@@ -97,7 +98,7 @@ export const RoleZone = ({ job, roleName, limit, assignments, personnel, onPerso
                     >
                       {person.photo_path ? (
                         <img
-                          src={`http://localhost/pnpman/${person.photo_path}`}
+                          src={`${BASE_URL}${person.photo_path}`}
                           className="w-7 h-7 rounded-full object-cover border border-white shadow-sm shrink-0"
                           alt={person.name}
                         />

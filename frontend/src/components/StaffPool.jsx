@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { User, Filter, Search, X } from 'lucide-react';
+import { BASE_URL } from '../utils/api';
 
 // Title badge color mapping
 const TITLE_COLORS = {
@@ -123,7 +124,7 @@ const StaffPool = ({ personnel, assignments, onPersonClick, isAdmin, editMode })
                       <div className="flex items-center gap-2.5">
                         {person.photo_path ? (
                           <img
-                            src={`http://localhost/pnpman/${person.photo_path}`}
+                            src={`${BASE_URL}${person.photo_path}`}
                             className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm shrink-0"
                             alt={person.name}
                           />

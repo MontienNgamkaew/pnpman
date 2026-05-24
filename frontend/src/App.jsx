@@ -14,6 +14,7 @@ import PrintReport from './components/PrintReport';
 import { Lock, LogOut, Users, Download, Trash2, Edit3, Save, Copy, Settings, Search, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { sortAssignments } from './utils/sorting';
+import { BASE_URL, API_URL } from './utils/api';
 
 // Role placement rules based on main_title
 const ROLE_RULES = {
@@ -155,7 +156,7 @@ function App() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost/pnpman/api/get_data.php?year=${academicYear}`);
+      const res = await axios.get(`${API_URL}get_data.php?year=${academicYear}`);
       setDepartments(res.data.data.departments);
       setJobs(res.data.data.jobs);
       setPersonnel(res.data.data.personnel);
@@ -189,7 +190,7 @@ function App() {
 
     if (result.isConfirmed) {
       try {
-        await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+        await axios.post(`${API_URL}remove_assignment.php`, {
           personnel_id: personnelId,
           job_id: jobId,
           role: role,
@@ -217,7 +218,7 @@ function App() {
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post('http://localhost/pnpman/api/clear_assignments.php', {
+        const res = await axios.post(`${API_URL}clear_assignments.php`, {
           academic_year: academicYear,
         });
         fetchData();
@@ -259,7 +260,7 @@ function App() {
         
         // Persist to database
         try {
-          await axios.post('http://localhost/pnpman/api/reorder_assignments.php', {
+          await axios.post(`${API_URL}reorder_assignments.php`, {
             job_id: jobId,
             role: role,
             academic_year: academicYear,
@@ -298,7 +299,7 @@ function App() {
       setAssignments(prev => [...prev, { id: tempId, personnel_id: personId, job_id: jobId, role, academic_year: academicYear }]);
 
       try {
-        const res = await axios.post('http://localhost/pnpman/api/assign_job.php', {
+        const res = await axios.post(`${API_URL}assign_job.php`, {
           personnel_id: personId, job_id: jobId, role, academic_year: academicYear,
         });
         if (res.data.status !== 'success') {
@@ -327,7 +328,7 @@ function App() {
       setAssignments(prev => prev.filter(a => a.id !== assignmentId));
 
       try {
-        await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+        await axios.post(`${API_URL}remove_assignment.php`, {
           personnel_id: assignment.personnel_id,
           job_id: sourceJobId,
           role: sourceRole,
@@ -402,17 +403,17 @@ function App() {
 
           try {
             // Delete both old database assignments, then insert the new swapped ones
-            await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+            await axios.post(`${API_URL}remove_assignment.php`, {
               personnel_id: personId, job_id: srcJobId, role: srcRole, academic_year: academicYear
             });
-            await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+            await axios.post(`${API_URL}remove_assignment.php`, {
               personnel_id: destPerson.id, job_id: destJobId, role: destRole, academic_year: academicYear
             });
             
-            await axios.post('http://localhost/pnpman/api/assign_job.php', {
+            await axios.post(`${API_URL}assign_job.php`, {
               personnel_id: personId, job_id: destJobId, role: destRole, academic_year: academicYear, comment: assignment.comment
             });
-            await axios.post('http://localhost/pnpman/api/assign_job.php', {
+            await axios.post(`${API_URL}assign_job.php`, {
               personnel_id: destPerson.id, job_id: srcJobId, role: srcRole, academic_year: academicYear, comment: destAssignment.comment
             });
 
@@ -432,10 +433,10 @@ function App() {
         }));
 
         try {
-          await axios.post('http://localhost/pnpman/api/remove_assignment.php', {
+          await axios.post(`${API_URL}remove_assignment.php`, {
             personnel_id: personId, job_id: srcJobId, role: srcRole, academic_year: academicYear
           });
-          await axios.post('http://localhost/pnpman/api/assign_job.php', {
+          await axios.post(`${API_URL}assign_job.php`, {
             personnel_id: personId, job_id: destJobId, role: destRole, academic_year: academicYear, comment: assignment.comment
           });
           fetchData();
@@ -484,7 +485,7 @@ function App() {
 
     if (result.isConfirmed) {
       try {
-        const res = await axios.post('http://localhost/pnpman/api/copy_year.php', {
+        const res = await axios.post(`${API_URL}copy_year.php`, {
           from_year: prevYear,
           to_year: academicYear,
         });
@@ -640,7 +641,7 @@ function App() {
       {/* Header */}
       <header className="header-gradient rounded-2xl p-5 mb-6 flex justify-between items-center z-10 relative flex-wrap gap-4 shadow-lg">
         <div className="flex items-center gap-4">
-          <img src={collegeSettings.logo_path ? `http://localhost/pnpman/${collegeSettings.logo_path}` : '/logo.png'} alt="Logo" className="w-14 h-14 rounded-full border-2 border-white/50 shadow-md object-cover bg-white" />
+          <img src={collegeSettings.logo_path ? `${BASE_URL}${collegeSettings.logo_path}` : '/logo.png'} alt="Logo" className="w-14 h-14 rounded-full border-2 border-white/50 shadow-md object-cover bg-white" />
           <div>
             <h1 className="text-2xl font-bold text-white drop-shadow-sm">
               ระบบบริหารจัดการโครงสร้างสถานศึกษาอาชีวศึกษา

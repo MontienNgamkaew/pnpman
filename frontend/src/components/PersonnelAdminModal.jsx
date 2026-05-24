@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { X, Plus, Trash2, Edit2, Check, Upload, Download, FileSpreadsheet, User } from 'lucide-react';
+import { BASE_URL, API_URL } from '../utils/api';
 
 const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
   const [editingId, setEditingId] = useState(null);
@@ -68,7 +69,7 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
       if (addFile) {
         formData.append('photo', addFile);
       }
-      await axios.post('http://localhost/pnpman/api/manage_personnel.php', formData, {
+      await axios.post(`${API_URL}manage_personnel.php`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setNewName('');
@@ -96,7 +97,7 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
       if (deleteEditPhoto) {
         formData.append('delete_photo', 'true');
       }
-      await axios.post('http://localhost/pnpman/api/manage_personnel.php', formData, {
+      await axios.post(`${API_URL}manage_personnel.php`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setEditingId(null);
@@ -123,7 +124,7 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
     });
     if (result.isConfirmed) {
       try {
-        await axios.post('http://localhost/pnpman/api/manage_personnel.php', { action: 'delete', id });
+        await axios.post(`${API_URL}manage_personnel.php`, { action: 'delete', id });
         onRefresh();
         Swal.fire({ title: 'ลบสำเร็จ!', icon: 'success', timer: 1200, showConfirmButton: false });
       } catch (err) {
@@ -171,7 +172,7 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
     formData.append('csv_file', file);
 
     try {
-      const res = await axios.post('http://localhost/pnpman/api/import_csv.php', formData, {
+      const res = await axios.post(`${API_URL}import_csv.php`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -199,7 +200,7 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
   };
 
   const handleDownloadTemplate = () => {
-    window.open('http://localhost/pnpman/api/csv_template.php', '_blank');
+    window.open(`${API_URL}csv_template.php`, '_blank');
   };
 
   const startEdit = (p) => {
@@ -424,7 +425,7 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
                               {editPhotoPreview ? (
                                 <img src={editPhotoPreview} className="w-full h-full object-cover rounded-full" alt="Preview" />
                               ) : p.photo_path && !deleteEditPhoto ? (
-                                <img src={`http://localhost/pnpman/${p.photo_path}`} className="w-full h-full object-cover rounded-full" alt="Current" />
+                                <img src={`${BASE_URL}${p.photo_path}`} className="w-full h-full object-cover rounded-full" alt="Current" />
                               ) : (
                                 <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
                                   <Upload size={14} />
@@ -458,7 +459,7 @@ const PersonnelAdminModal = ({ personnel, onClose, onRefresh }) => {
                           </div>
                         ) : (
                           p.photo_path ? (
-                            <img src={`http://localhost/pnpman/${p.photo_path}`} className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm shrink-0" alt={p.name} />
+                            <img src={`${BASE_URL}${p.photo_path}`} className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm shrink-0" alt={p.name} />
                           ) : (
                             <div className={`w-10 h-10 rounded-full border flex items-center justify-center shadow-sm shrink-0 ${TITLE_COLORS_MAP[p.main_title || 'ไม่ระบุ'] || 'bg-gray-100 border-gray-200 text-gray-500'}`}>
                               <User size={16} />
