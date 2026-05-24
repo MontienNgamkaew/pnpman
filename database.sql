@@ -31,10 +31,10 @@ CREATE TABLE IF NOT EXISTS assignments (
 );
 
 SET FOREIGN_KEY_CHECKS=0;
-TRUNCATE TABLE assignments;
-TRUNCATE TABLE jobs;
-TRUNCATE TABLE departments;
-TRUNCATE TABLE personnel;
+DELETE FROM assignments;
+DELETE FROM jobs;
+DELETE FROM departments;
+DELETE FROM personnel;
 SET FOREIGN_KEY_CHECKS=1;
 
 -- Insert Departments
