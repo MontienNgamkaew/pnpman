@@ -22,7 +22,15 @@ try {
         echo "Note: college_settings verify failed: " . $e->getMessage() . "\n";
     }
 
-    // 2. Consolidated safety: Modify assignments.role to VARCHAR(100) (V1 fallback)
+    // 2. Consolidated safety: Add academic_year to assignments (V1 fallback)
+    try {
+        $pdo->exec("ALTER TABLE assignments ADD COLUMN academic_year INT NOT NULL DEFAULT 2569");
+        echo "Added 'academic_year' column to 'assignments' table successfully.\n";
+    } catch (PDOException $e) {
+        // column likely exists
+    }
+
+    // 3. Consolidated safety: Modify assignments.role to VARCHAR(100) (V1 fallback)
     try {
         $pdo->exec("ALTER TABLE assignments MODIFY role VARCHAR(100) NOT NULL");
         echo "Modified 'assignments.role' column to VARCHAR successfully.\n";
@@ -30,7 +38,22 @@ try {
         echo "Note: assignments.role modify failed: " . $e->getMessage() . "\n";
     }
 
-    // 3. Consolidated safety: Add sort_order to assignments (V3 fallback)
+    // 4. Consolidated safety: Re-create unique constraints on assignments (V1 fallback)
+    try {
+        $pdo->exec("ALTER TABLE assignments ADD INDEX idx_personnel (personnel_id)");
+    } catch (PDOException $e) {}
+
+    try {
+        $pdo->exec("ALTER TABLE assignments DROP INDEX unique_assignment");
+        echo "Dropped old unique_assignment index.\n";
+    } catch (PDOException $e) {}
+
+    try {
+        $pdo->exec("ALTER TABLE assignments ADD UNIQUE KEY unique_assignment_v2 (personnel_id, job_id, role, academic_year)");
+        echo "Created unique_assignment_v2 index successfully.\n";
+    } catch (PDOException $e) {}
+
+    // 5. Consolidated safety: Add sort_order to assignments (V3 fallback)
     try {
         $pdo->exec("ALTER TABLE assignments ADD COLUMN sort_order INT NOT NULL DEFAULT 0");
         echo "Added 'sort_order' column to 'assignments' table successfully.\n";
@@ -38,7 +61,7 @@ try {
         // column likely exists
     }
 
-    // 4. Consolidated safety: Add photo_path to personnel (V4 fallback)
+    // 6. Consolidated safety: Add photo_path to personnel (V4 fallback)
     try {
         $pdo->exec("ALTER TABLE personnel ADD COLUMN photo_path VARCHAR(255) NULL DEFAULT NULL");
         echo "Added 'photo_path' column to 'personnel' table successfully.\n";
@@ -46,7 +69,7 @@ try {
         // column likely exists
     }
 
-    // 5. CRITICAL FIX: Modify personnel.main_title to VARCHAR(100) to resolve ENUM mismatch
+    // 7. CRITICAL FIX: Modify personnel.main_title to VARCHAR(100) to resolve ENUM mismatch
     try {
         $pdo->exec("ALTER TABLE personnel MODIFY main_title VARCHAR(100) NOT NULL");
         echo "Successfully modified 'personnel.main_title' column from ENUM to VARCHAR.\n";
@@ -54,7 +77,7 @@ try {
         echo "Failed to modify 'personnel.main_title' column: " . $e->getMessage() . "\n";
     }
 
-    // 6. CRITICAL FIX: Update old short title terms to match new UI Options ('ข้าราชการ' -> 'ข้าราชการครู', 'พนักงานราชการ' -> 'พนักงานราชการครู')
+    // 8. CRITICAL FIX: Update old short title terms to match new UI Options ('ข้าราชการ' -> 'ข้าราชการครู', 'พนักงานราชการ' -> 'พนักงานราชการครู')
     try {
         $pdo->exec("UPDATE personnel SET main_title = 'ข้าราชการครู' WHERE main_title = 'ข้าราชการ'");
         $pdo->exec("UPDATE personnel SET main_title = 'พนักงานราชการครู' WHERE main_title = 'พนักงานราชการ'");
@@ -63,7 +86,7 @@ try {
         echo "Failed to update old personnel titles: " . $e->getMessage() . "\n";
     }
 
-    // 7. Insert Director and Deputy Director positions with explicit IDs
+    // 9. Insert Director and Deputy Director positions with explicit IDs
     $stmt = $pdo->prepare("
         INSERT INTO jobs (id, department_id, name, sort_order) VALUES
         (900, NULL, 'ผู้อำนวยการวิทยาลัย', 0),
