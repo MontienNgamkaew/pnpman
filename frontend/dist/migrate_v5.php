@@ -69,7 +69,15 @@ try {
         // column likely exists
     }
 
-    // 7. CRITICAL FIX: Modify personnel.main_title to VARCHAR(100) to resolve ENUM mismatch
+    // 7. CRITICAL FIX: Add comment column to assignments table (add_comment_column.php fallback)
+    try {
+        $pdo->exec("ALTER TABLE assignments ADD COLUMN comment VARCHAR(255) DEFAULT NULL");
+        echo "Added 'comment' column to 'assignments' table successfully.\n";
+    } catch (PDOException $e) {
+        // column likely exists
+    }
+
+    // 8. CRITICAL FIX: Modify personnel.main_title to VARCHAR(100) to resolve ENUM mismatch
     try {
         $pdo->exec("ALTER TABLE personnel MODIFY main_title VARCHAR(100) NOT NULL");
         echo "Successfully modified 'personnel.main_title' column from ENUM to VARCHAR.\n";
@@ -77,7 +85,7 @@ try {
         echo "Failed to modify 'personnel.main_title' column: " . $e->getMessage() . "\n";
     }
 
-    // 8. CRITICAL FIX: Update old short title terms to match new UI Options ('ข้าราชการ' -> 'ข้าราชการครู', 'พนักงานราชการ' -> 'พนักงานราชการครู')
+    // 9. CRITICAL FIX: Update old short title terms to match new UI Options ('ข้าราชการ' -> 'ข้าราชการครู', 'พนักงานราชการ' -> 'พนักงานราชการครู')
     try {
         $pdo->exec("UPDATE personnel SET main_title = 'ข้าราชการครู' WHERE main_title = 'ข้าราชการ'");
         $pdo->exec("UPDATE personnel SET main_title = 'พนักงานราชการครู' WHERE main_title = 'พนักงานราชการ'");
@@ -86,7 +94,7 @@ try {
         echo "Failed to update old personnel titles: " . $e->getMessage() . "\n";
     }
 
-    // 9. Insert Director and Deputy Director positions with explicit IDs
+    // 10. Insert Director and Deputy Director positions with explicit IDs
     $stmt = $pdo->prepare("
         INSERT INTO jobs (id, department_id, name, sort_order) VALUES
         (900, NULL, 'ผู้อำนวยการวิทยาลัย', 0),
