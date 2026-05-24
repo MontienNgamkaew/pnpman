@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 $host = 'localhost'; // โฮสต์สำหรับ Hostinger (ปกติคือ localhost)
 $db   = 'u651170081_pnpman'; // ชื่อฐานข้อมูล MySQL บน Hostinger
 $user = 'u651170081_pnpman'; // ชื่อผู้ใช้งาน MySQL บน Hostinger
-$pass = 'ใส่รหัสผ่านฐานข้อมูล Hostinger ของคุณตรงนี้'; // รหัสผ่านฐานข้อมูลที่คุณตั้งไว้ใน hPanel
+$pass = 'a1d9GH10%'; // รหัสผ่านฐานข้อมูลที่คุณตั้งไว้ใน hPanel
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
